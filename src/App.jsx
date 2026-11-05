@@ -1,5 +1,4 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef, Suspense, lazy } from 'react';
 import {
   ArrowUpRight,
   Award,
@@ -39,11 +38,12 @@ import {
   ZoomOut,
 } from 'lucide-react';
 import Scene3DBackground from './components/Scene3DBackground';
-import LanyardScene from './components/LanyardScene';
 import SpotlightCard from './components/SpotlightCard';
 import LoadingScreen from './components/LoadingScreen';
 import { TECH_STACK_ITEMS } from './components/TechIcons';
 import { SOCIAL_LINKS } from './components/SocialIcons';
+
+const LazyLanyardScene = lazy(() => import('./components/LanyardScene'));
 
 const ROLES = ['Web Developer', 'Software Engineer'];
 
@@ -55,36 +55,36 @@ const NAV_ITEMS = [
   { id: 'kontak', label: 'Kontak', mobileLabel: 'Kontak', href: '#kontak', Icon: Mail },
 ];
 
-// Previewable Documents & Official Certificates (Read-Only High-DPI Pages)
+// Previewable Documents & Official Certificates (Read-Only Optimized WebP Pages)
 const PREVIEW_DOCS = {
   cv: {
     title: 'Curriculum Vitae — Bayu Saputra',
     subtitle: 'Pratinjau Dokumen CV (Read-Only)',
-    pages: ['/previews/cv-p1.png'],
+    pages: ['/previews/cv-p1.webp'],
   },
   magang: {
     title: 'Sertifikat Magang — Balai Bahasa Provinsi Riau',
     subtitle: 'Kemendikdasmen · Nomor 12/G5.3/Magang/2026 (1 Sep 2025 – 2 Jan 2026)',
-    pages: ['/previews/magang-p1.png'],
+    pages: ['/previews/magang-p1.webp'],
   },
   mtcna: {
     title: 'MikroTik Certified Network Associate (MTCNA)',
     subtitle: 'Certificate ID: 2407NA0799 · Berlaku 24 Juli 2024 – 24 Juli 2027',
-    pages: ['/previews/mtcna-p1.png'],
+    pages: ['/previews/mtcna-p1.webp'],
     verifyUrl: 'https://mikrotik.com/certificates',
     verifyLabel: 'Verifikasi di MikroTik',
   },
   promptEng: {
     title: 'Prompt Engineering untuk Software Developer',
     subtitle: 'Dicoding Indonesia · ID: 0LZ0J1JKKX65 · Berlaku s.d. 02 Sep 2029',
-    pages: ['/previews/prompt-eng-p1.png', '/previews/prompt-eng-p2.png'],
+    pages: ['/previews/prompt-eng-p1.webp', '/previews/prompt-eng-p2.webp'],
     verifyUrl: 'https://www.dicoding.com/certificates/0LZ0J1JKKX65',
     verifyLabel: 'Verifikasi Sertifikat Dicoding',
   },
   dasarAi: {
     title: 'Belajar Dasar AI',
     subtitle: 'Dicoding Indonesia · ID: 2VX3V1V8VPYQ · Berlaku s.d. 02 Sep 2029',
-    pages: ['/previews/dasar-ai-p1.png', '/previews/dasar-ai-p2.png'],
+    pages: ['/previews/dasar-ai-p1.webp', '/previews/dasar-ai-p2.webp'],
     verifyUrl: 'https://www.dicoding.com/certificates/2VX3V1V8VPYQ',
     verifyLabel: 'Verifikasi Sertifikat Dicoding',
   },
@@ -100,7 +100,7 @@ const LIVE_KEMENDIKDASMEN_PROJECTS = [
     url: 'https://ppidbbpriau.kemendikdasmen.go.id/',
     displayUrl: 'ppidbbpriau.kemendikdasmen.go.id',
     badge: 'Live Production',
-    image: '/projects/ppid-live.png',
+    image: '/projects/ppid-live.webp',
     Icon: Globe,
     summary:
       'Portal resmi layanan keterbukaan informasi publik sesuai UU No. 14 Tahun 2008 lengkap dengan permohonan informasi daring dan pelacakan status.',
@@ -116,7 +116,7 @@ const LIVE_KEMENDIKDASMEN_PROJECTS = [
     url: 'https://ppidbbpriau.kemendikdasmen.go.id/portal/tamu',
     displayUrl: 'ppidbbpriau.kemendikdasmen.go.id/portal/tamu',
     badge: 'Live Portal',
-    image: '/projects/sapa-live.png',
+    image: '/projects/sapa-live.webp',
     Icon: UserCheck,
     summary:
       'Website absensi tamu dan aspirasi layanan digital untuk pencatatan kunjungan masyarakat secara paperless lewat perangkat kantor maupun QR ponsel.',
@@ -132,7 +132,7 @@ const LIVE_KEMENDIKDASMEN_PROJECTS = [
     url: 'https://ppidbbpriau.kemendikdasmen.go.id/portal/survei',
     displayUrl: 'ppidbbpriau.kemendikdasmen.go.id/portal/survei',
     badge: 'Live Portal',
-    image: '/projects/skm-live.png',
+    image: '/projects/skm-live.webp',
     Icon: ClipboardCheck,
     summary:
       'Portal kuesioner Survei Kepuasan Masyarakat daring 2 tahap sesuai standar PermenPANRB Nomor 14 Tahun 2017 dengan akses QR responsif.',
@@ -216,13 +216,102 @@ const ACADEMIC_PROJECTS = [
   },
 ];
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] } },
-};
+function RevealSection({ id, className = '', children }) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisible(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '-60px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <section
+      id={id}
+      ref={ref}
+      className={`reveal-section ${visible ? 'is-visible' : ''} ${className}`}
+    >
+      {children}
+    </section>
+  );
+}
+
+/**
+ * Instant Zero-JS-Cost Visual Lanyard Replica shown on first paint,
+ * seamlessly cross-fading into the interactive 3D WebGL LanyardScene.
+ */
+function LanyardStaticPreview({ hidden }) {
+  return (
+    <div
+      aria-hidden="true"
+      className={`pointer-events-none absolute inset-0 flex flex-col items-center justify-start transition-opacity duration-500 ${
+        hidden ? 'opacity-0' : 'opacity-100'
+      }`}
+    >
+      {/* Hanging Woven Strap */}
+      <div className="w-3.5 sm:w-4 h-20 sm:h-28 lg:h-32 bg-[#0F131D] border-x border-sky-400/40 shadow-md" />
+      {/* Brushed Metallic Clip */}
+      <div className="w-2.5 h-3 rounded-t bg-slate-300 -mt-0.5" />
+      <div className="w-8 sm:w-9 h-2.5 rounded-md bg-slate-700 border border-white/20 shadow" />
+      {/* Sleek Developer ID Pass Card */}
+      <div className="w-[172px] sm:w-[216px] lg:w-[244px] rounded-2xl bg-gradient-to-br from-[#151924] via-[#0D1017] to-[#080A0F] border border-white/15 shadow-[0_22px_50px_rgba(0,0,0,0.85)] overflow-hidden p-3 sm:p-4 -mt-0.5">
+        <div className="h-1 w-full bg-gradient-to-r from-sky-400 via-indigo-400 to-transparent -mt-3 sm:-mt-4 mb-2.5" />
+        <div className="flex items-center justify-between text-[7px] sm:text-[8px] font-mono text-slate-300 mb-2">
+          <span>DEVELOPER ID PASS</span>
+          <span className="px-1.5 py-0.5 rounded-full bg-sky-400/15 border border-sky-400/40 text-sky-300 font-sans font-bold">
+            VERIFIED
+          </span>
+        </div>
+        <div className="aspect-square w-full rounded-xl overflow-hidden border border-sky-400/30 bg-[#181B24] mb-2.5">
+          <img
+            src="/bayu-card-portrait.webp"
+            alt=""
+            width="240"
+            height="240"
+            decoding="sync"
+            className="w-full h-full object-cover"
+          />
+        </div>
+        <p className="font-display font-bold text-xs sm:text-sm text-white leading-tight">
+          Bayu Saputra
+        </p>
+        <p className="text-[8px] sm:text-[9px] font-medium text-sky-400 mt-0.5 truncate">
+          Web Developer &amp; Software Engineer
+        </p>
+        <div className="mt-2 pt-2 border-t border-white/10 grid grid-cols-3 gap-1 text-[6.5px] sm:text-[7.5px]">
+          <div>
+            <span className="text-slate-400 block">Pendidikan</span>
+            <span className="text-white font-semibold">D4 TI (3.70)</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block">Sertifikasi</span>
+            <span className="text-white font-semibold">BNSP &amp; MTCNA</span>
+          </div>
+          <div>
+            <span className="text-slate-400 block">Domisili</span>
+            <span className="text-white font-semibold">Pekanbaru</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [mount3D, setMount3D] = useState(false);
+  const [lanyard3DReady, setLanyard3DReady] = useState(false);
   const [roleIdx, setRoleIdx] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
   const [impulseKey, setImpulseKey] = useState(0);
@@ -236,6 +325,25 @@ export default function App() {
   const email = 'bayusaputra100704@gmail.com';
   const activePreviewDoc = previewDocKey ? PREVIEW_DOCS[previewDocKey] : null;
 
+  // Defer 3D WebGL chunk initialization until right after initial Hero paint & vault door reveal
+  useEffect(() => {
+    let idleId = 0;
+    const timer = window.setTimeout(() => {
+      if ('requestIdleCallback' in window) {
+        idleId = window.requestIdleCallback(() => setMount3D(true), { timeout: 600 });
+      } else {
+        setMount3D(true);
+      }
+    }, 950);
+
+    return () => {
+      clearTimeout(timer);
+      if ('cancelIdleCallback' in window && idleId) {
+        window.cancelIdleCallback(idleId);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     const interval = setInterval(() => {
       setRoleIdx((prev) => (prev + 1) % ROLES.length);
@@ -246,15 +354,21 @@ export default function App() {
   // Scroll-Spy for Desktop Top Navbar & Mobile Bottom App Bar
   useEffect(() => {
     const sectionIds = ['top', 'keahlian', 'proyek', 'pengalaman', 'kontak'];
+    let ticking = false;
     const handleScroll = () => {
-      const scrollPos = window.scrollY + window.innerHeight * 0.32;
-      for (let i = sectionIds.length - 1; i >= 0; i--) {
-        const el = document.getElementById(sectionIds[i]);
-        if (el && el.offsetTop <= scrollPos) {
-          setActiveSection(sectionIds[i]);
-          break;
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const scrollPos = window.scrollY + window.innerHeight * 0.32;
+        for (let i = sectionIds.length - 1; i >= 0; i--) {
+          const el = document.getElementById(sectionIds[i]);
+          if (el && el.offsetTop <= scrollPos) {
+            setActiveSection((prev) => (prev === sectionIds[i] ? prev : sectionIds[i]));
+            break;
+          }
         }
-      }
+        ticking = false;
+      });
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -285,12 +399,12 @@ export default function App() {
       {/* Intro Zipper & Split-Door Loading Screen */}
       {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
 
-      {/* Live Three.js 3D Wave Grid, Glowing Starfield & Architectural Spotlight */}
+      {/* Ambient Starfield, Horizon Wave & Architectural Spotlight */}
       <Scene3DBackground />
 
       {/* DESKTOP ONLY: Standard Floating Top Glass Navbar (hidden on mobile!) */}
       <header className="hidden md:block fixed top-0 inset-x-0 z-40 px-6 pt-4">
-        <div className="max-w-6xl mx-auto rounded-full bg-[#0B0F19]/80 backdrop-blur-xl border border-white/[0.09] px-5 h-14 flex items-center justify-between shadow-[0_12px_34px_rgba(0,0,0,0.55)]">
+        <div className="max-w-6xl mx-auto rounded-full bg-[#0B0F19]/85 backdrop-blur-md border border-white/[0.09] px-5 h-14 flex items-center justify-between shadow-[0_12px_34px_rgba(0,0,0,0.55)]">
           <a href="#top" className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500/20 via-slate-900 to-indigo-500/20 border border-sky-400/35 flex items-center justify-center text-sky-400 group-hover:border-sky-300 group-hover:text-sky-300 transition-all shadow-[0_0_18px_rgba(56,189,248,0.16)]">
               <Code2 className="w-4 h-4" />
@@ -348,7 +462,7 @@ export default function App() {
       {/* MOBILE ONLY: Native App-Style Bottom Navigation Bar (hidden on desktop!) */}
       <nav
         aria-label="Navigasi Mobile"
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#090D16]/95 backdrop-blur-2xl border-t border-white/[0.1] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(0,0,0,0.65)]"
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#090D16]/95 border-t border-white/[0.1] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(0,0,0,0.65)]"
       >
         <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
           {NAV_ITEMS.map(({ id, mobileLabel, href, Icon }) => {
@@ -362,11 +476,7 @@ export default function App() {
                 }`}
               >
                 {isActive && (
-                  <motion.span
-                    layoutId="mobileActivePill"
-                    transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                    className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-sky-400/12 border border-sky-400/25"
-                  />
+                  <span className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-sky-400/12 border border-sky-400/25" />
                 )}
                 <Icon className={`w-4 h-4 relative z-10 ${isActive ? 'text-sky-400' : ''}`} />
                 <span className="text-[10px] font-medium mt-1 relative z-10 leading-none">
@@ -379,7 +489,7 @@ export default function App() {
       </nav>
 
       <main className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
-        {/* MOBILE INLINE TOP HEADER (Scrolls away naturally, zero sticky top clutter on phone!) */}
+        {/* MOBILE INLINE TOP HEADER */}
         <div className="md:hidden flex items-center justify-between pt-4 pb-1">
           <a href="#top" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500/20 via-slate-900 to-indigo-500/20 border border-sky-400/35 flex items-center justify-center text-sky-400">
@@ -400,15 +510,10 @@ export default function App() {
           </button>
         </div>
 
-        {/* HERO SECTION + INTERACTIVE 3D LANYARD */}
+        {/* HERO SECTION + INTERACTIVE 3D LANYARD (Rendered immediately at opacity 1 for instant LCP!) */}
         <section className="min-h-[calc(100vh-4rem)] md:min-h-screen pt-2 md:pt-24 pb-10 md:pb-12 grid grid-cols-1 lg:grid-cols-12 items-center gap-6 lg:gap-8">
           {/* Left Hero Column */}
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="lg:col-span-6 space-y-5 sm:space-y-6 order-2 lg:order-1"
-          >
+          <div className="lg:col-span-6 space-y-5 sm:space-y-6 order-2 lg:order-1">
             {/* Availability Pill */}
             <div className="inline-flex items-center gap-2.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-sky-400/[0.08] border border-sky-400/20 text-[11px] sm:text-xs text-sky-200">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
@@ -424,18 +529,12 @@ export default function App() {
 
               <div className="h-7 sm:h-9 overflow-hidden flex items-center gap-2 text-base sm:text-2xl font-display font-semibold">
                 <span className="text-slate-400 font-normal">Role:</span>
-                <AnimatePresence mode="wait">
-                  <motion.span
-                    key={ROLES[roleIdx]}
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    exit={{ y: -20, opacity: 0 }}
-                    transition={{ duration: 0.3, ease: 'easeOut' }}
-                    className="bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent"
-                  >
-                    {ROLES[roleIdx]}
-                  </motion.span>
-                </AnimatePresence>
+                <span
+                  key={ROLES[roleIdx]}
+                  className="animate-role-in bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent"
+                >
+                  {ROLES[roleIdx]}
+                </span>
               </div>
             </div>
 
@@ -473,7 +572,7 @@ export default function App() {
 
             {/* Social Media Quick Strip */}
             <div className="flex items-center gap-2 pt-1">
-              <span className="text-[11px] text-slate-500 mr-1">Sosial:</span>
+              <span className="text-[11px] text-slate-400 mr-1">Sosial:</span>
               {SOCIAL_LINKS.map(({ name, url, accent, Icon }) => (
                 <a
                   key={name}
@@ -508,18 +607,34 @@ export default function App() {
                 <p className="text-[11px] text-slate-400 mt-0.5">MikroTik 2024–2027</p>
               </div>
             </div>
-          </motion.div>
+          </div>
 
           {/* Right Interactive 3D Physics Lanyard */}
-          <div className="lg:col-span-6 order-1 lg:order-2 relative flex flex-col items-center">
-            <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 sm:w-80 h-64 sm:h-80 rounded-full bg-gradient-to-tr from-sky-500/15 to-indigo-500/15 blur-3xl" />
+          <div
+            onPointerEnter={() => setMount3D(true)}
+            onPointerDown={() => setMount3D(true)}
+            className="lg:col-span-6 order-1 lg:order-2 relative flex flex-col items-center"
+          >
+            <div
+              className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 sm:w-80 h-64 sm:h-80 rounded-full"
+              style={{
+                background:
+                  'radial-gradient(circle, rgba(56,189,248,0.16) 0%, rgba(99,102,241,0.12) 45%, transparent 72%)',
+              }}
+            />
 
             <div className="w-full h-[390px] sm:h-[520px] lg:h-[620px] relative z-10">
-              <LanyardScene
-                isFlipped={isFlipped}
-                onFlipToggle={() => setIsFlipped((f) => !f)}
-                impulseKey={impulseKey}
-              />
+              <LanyardStaticPreview hidden={lanyard3DReady} />
+              {mount3D && (
+                <Suspense fallback={null}>
+                  <LazyLanyardScene
+                    isFlipped={isFlipped}
+                    onFlipToggle={() => setIsFlipped((f) => !f)}
+                    impulseKey={impulseKey}
+                    onReady={() => setLanyard3DReady(true)}
+                  />
+                </Suspense>
+              )}
             </div>
 
             {/* Sleek Interactive Pill Controls Under Lanyard */}
@@ -530,7 +645,10 @@ export default function App() {
               </span>
 
               <button
-                onClick={() => setIsFlipped((f) => !f)}
+                onClick={() => {
+                  setMount3D(true);
+                  setIsFlipped((f) => !f);
+                }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-[11px] sm:text-xs font-medium text-slate-200 transition-colors active:scale-95"
               >
                 <RotateCw className="w-3.5 h-3.5 text-sky-400" />
@@ -538,7 +656,10 @@ export default function App() {
               </button>
 
               <button
-                onClick={() => setImpulseKey((k) => k + 1)}
+                onClick={() => {
+                  setMount3D(true);
+                  setImpulseKey((k) => k + 1);
+                }}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-[11px] sm:text-xs font-medium text-slate-200 transition-colors active:scale-95"
               >
                 <RefreshCw className="w-3.5 h-3.5 text-indigo-400" />
@@ -549,12 +670,8 @@ export default function App() {
         </section>
 
         {/* DUAL-ROW INFINITE TECH STACK MARQUEE */}
-        <motion.section
+        <RevealSection
           id="keahlian"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          variants={fadeUp}
           className="py-14 sm:py-16 border-t border-white/[0.06]"
         >
           <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10 space-y-2">
@@ -575,11 +692,19 @@ export default function App() {
                 return (
                   <div
                     key={`${item.name}-${idx}`}
-                    className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-[#0D111A]/90 border border-white/[0.08] hover:border-sky-400/35 transition-colors min-w-[185px] sm:min-w-[215px]"
+                    className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-[#0D111A]/95 border border-white/[0.08] hover:border-sky-400/35 transition-colors min-w-[185px] sm:min-w-[215px]"
                   >
                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.05] flex items-center justify-center shrink-0">
                       {item.iconUrl ? (
-                        <img src={item.iconUrl} alt={item.name} className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                        <img
+                          src={item.iconUrl}
+                          alt={item.name}
+                          width="20"
+                          height="20"
+                          loading="lazy"
+                          decoding="async"
+                          className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                        />
                       ) : (
                         FallbackIcon && (
                           <FallbackIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.iconColor || 'text-sky-400'}`} />
@@ -602,11 +727,19 @@ export default function App() {
                 return (
                   <div
                     key={`${item.name}-${idx}`}
-                    className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-[#0D111A]/90 border border-white/[0.08] hover:border-indigo-400/35 transition-colors min-w-[185px] sm:min-w-[215px]"
+                    className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-[#0D111A]/95 border border-white/[0.08] hover:border-indigo-400/35 transition-colors min-w-[185px] sm:min-w-[215px]"
                   >
                     <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.05] flex items-center justify-center shrink-0">
                       {item.iconUrl ? (
-                        <img src={item.iconUrl} alt={item.name} className="w-4 h-4 sm:w-5 sm:h-5 object-contain" />
+                        <img
+                          src={item.iconUrl}
+                          alt={item.name}
+                          width="20"
+                          height="20"
+                          loading="lazy"
+                          decoding="async"
+                          className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                        />
                       ) : (
                         FallbackIcon && (
                           <FallbackIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.iconColor || 'text-sky-400'}`} />
@@ -622,15 +755,11 @@ export default function App() {
               })}
             </div>
           </div>
-        </motion.section>
+        </RevealSection>
 
         {/* PART 1: REAL LIVE PRODUCTION SHOWCASE — BALAI BAHASA PROVINSI RIAU */}
-        <motion.section
+        <RevealSection
           id="proyek"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          variants={fadeUp}
           className="py-16 sm:py-20 border-t border-white/[0.06]"
         >
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10">
@@ -674,8 +803,11 @@ export default function App() {
                         <img
                           src={project.image}
                           alt={project.title}
-                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
+                          width="960"
+                          height="600"
                           loading="lazy"
+                          decoding="async"
+                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
                         />
                       </div>
                     </div>
@@ -810,15 +942,11 @@ export default function App() {
               })}
             </div>
           </div>
-        </motion.section>
+        </RevealSection>
 
         {/* PENGALAMAN KERJA, PENCAPAIAN, PENDIDIKAN, SERTIFIKASI & PELATIHAN */}
-        <motion.section
+        <RevealSection
           id="pengalaman"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          variants={fadeUp}
           className="py-16 sm:py-20 border-t border-white/[0.06]"
         >
           <div className="mb-8 sm:mb-10 space-y-2">
@@ -1029,7 +1157,6 @@ export default function App() {
                 </div>
 
                 <div className="space-y-3.5">
-                  {/* BNSP: Lulus, sertifikat sedang proses penerbitan */}
                   <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] space-y-2.5">
                     <div className="flex items-start justify-between gap-2">
                       <div>
@@ -1049,7 +1176,6 @@ export default function App() {
                     </p>
                   </div>
 
-                  {/* MTCNA with Official Certificate Preview */}
                   <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] space-y-3">
                     <div className="flex items-start justify-between gap-2">
                       <div>
@@ -1162,15 +1288,11 @@ export default function App() {
               </SpotlightCard>
             </div>
           </div>
-        </motion.section>
+        </RevealSection>
 
         {/* CONTACT & SOCIAL MEDIA SECTION */}
-        <motion.section
+        <RevealSection
           id="kontak"
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
-          variants={fadeUp}
           className="py-16 sm:py-20 border-t border-white/[0.06]"
         >
           <SpotlightCard className="p-6 sm:p-10 lg:p-12">
@@ -1236,7 +1358,7 @@ export default function App() {
                   </a>
                 </div>
 
-                {/* All 5 Social Media Cards */}
+                {/* All Social Media Cards */}
                 <div className="pt-2">
                   <p className="text-xs font-medium text-slate-400 mb-2.5">Media Sosial Resmi</p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -1262,190 +1384,175 @@ export default function App() {
               </div>
             </div>
           </SpotlightCard>
-        </motion.section>
+        </RevealSection>
       </main>
 
       {/* Project Lightbox Detail Modal */}
-      <AnimatePresence>
-        {selectedProject && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelectedProject(null)}
-            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4"
+      {selectedProject && (
+        <div
+          onClick={() => setSelectedProject(null)}
+          className="animate-modal-backdrop fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="animate-modal-panel w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-[#0D111A] border border-white/15 p-5 sm:p-7 space-y-5 shadow-2xl"
           >
-            <motion.div
-              initial={{ opacity: 0, y: 24, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.97 }}
-              transition={{ duration: 0.22 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-[#0D111A] border border-white/15 p-5 sm:p-7 space-y-5 shadow-2xl"
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-xs font-medium text-sky-400">{selectedProject.org}</p>
-                  <h3 className="font-display text-lg sm:text-2xl font-bold text-white mt-0.5">
-                    {selectedProject.title}
-                  </h3>
-                </div>
-                <button
-                  onClick={() => setSelectedProject(null)}
-                  className="p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-colors"
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-medium text-sky-400">{selectedProject.org}</p>
+                <h3 className="font-display text-lg sm:text-2xl font-bold text-white mt-0.5">
+                  {selectedProject.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setSelectedProject(null)}
+                aria-label="Tutup detail proyek"
+                className="p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {selectedProject.image && (
+              <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
+                <img
+                  src={selectedProject.image}
+                  alt={selectedProject.title}
+                  width="960"
+                  height="600"
+                  className="w-full h-full object-cover object-top"
+                />
+              </div>
+            )}
+
+            <p className="text-xs sm:text-base text-slate-300 leading-relaxed">
+              {selectedProject.details}
+            </p>
+
+            <div className="flex flex-wrap gap-2 pt-3 border-t border-white/10">
+              {selectedProject.tech.map((t) => (
+                <span
+                  key={t}
+                  className="px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 text-xs font-medium text-slate-200"
                 >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+                  {t}
+                </span>
+              ))}
+            </div>
 
-              {selectedProject.image && (
-                <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
-                  <img
-                    src={selectedProject.image}
-                    alt={selectedProject.title}
-                    className="w-full h-full object-cover object-top"
-                  />
+            {selectedProject.url && (
+              <div className="pt-2">
+                <a
+                  href={selectedProject.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-sky-400 hover:bg-sky-300 text-slate-950 text-xs sm:text-sm font-semibold transition-all"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  <span>Buka {selectedProject.displayUrl}</span>
+                </a>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Universal Read-Only Document & Certificate Preview Modal */}
+      {activePreviewDoc && (
+        <div
+          onClick={() => setPreviewDocKey(null)}
+          className="animate-modal-backdrop fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-5"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            onContextMenu={(e) => e.preventDefault()}
+            className="animate-modal-panel w-full max-w-4xl h-[88vh] rounded-t-3xl sm:rounded-3xl bg-[#0D111A] border border-white/15 flex flex-col overflow-hidden shadow-2xl select-none"
+          >
+            {/* Modal Top Toolbar */}
+            <div className="px-4 sm:px-6 py-3.5 border-b border-white/10 flex items-center justify-between gap-3 bg-[#0B0F19]">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-xl bg-sky-400/10 border border-sky-400/25 flex items-center justify-center text-sky-400 shrink-0">
+                  <FileText className="w-4 h-4" />
                 </div>
-              )}
-
-              <p className="text-xs sm:text-base text-slate-300 leading-relaxed">
-                {selectedProject.details}
-              </p>
-
-              <div className="flex flex-wrap gap-2 pt-3 border-t border-white/10">
-                {selectedProject.tech.map((t) => (
-                  <span
-                    key={t}
-                    className="px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 text-xs font-medium text-slate-200"
-                  >
-                    {t}
-                  </span>
-                ))}
+                <div className="min-w-0">
+                  <h3 className="font-display text-xs sm:text-base font-bold text-white truncate">
+                    {activePreviewDoc.title}
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-slate-400 truncate">
+                    {activePreviewDoc.subtitle}
+                  </p>
+                </div>
               </div>
 
-              {selectedProject.url && (
-                <div className="pt-2">
+              <div className="flex items-center gap-1.5 shrink-0">
+                <button
+                  onClick={() => setZoomLevel((z) => Math.max(1, +(z - 0.25).toFixed(2)))}
+                  aria-label="Perkecil"
+                  className="p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-colors"
+                >
+                  <ZoomOut className="w-4 h-4" />
+                </button>
+                <span className="text-[11px] font-mono text-slate-300 px-1 hidden sm:inline">
+                  {Math.round(zoomLevel * 100)}%
+                </span>
+                <button
+                  onClick={() => setZoomLevel((z) => Math.min(1.75, +(z + 0.25).toFixed(2)))}
+                  aria-label="Perbesar"
+                  className="p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-colors"
+                >
+                  <ZoomIn className="w-4 h-4" />
+                </button>
+
+                {activePreviewDoc.verifyUrl && (
                   <a
-                    href={selectedProject.url}
+                    href={activePreviewDoc.verifyUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-sky-400 hover:bg-sky-300 text-slate-950 text-xs sm:text-sm font-semibold transition-all"
+                    className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-400/15 hover:bg-sky-400/25 border border-sky-400/30 text-xs font-medium text-sky-300 ml-1"
                   >
-                    <ExternalLink className="w-4 h-4" />
-                    <span>Buka {selectedProject.displayUrl}</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>{activePreviewDoc.verifyLabel}</span>
                   </a>
-                </div>
-              )}
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+                )}
 
-      {/* Universal Read-Only Document & Certificate Preview Modal (Works identically on HP & Desktop!) */}
-      <AnimatePresence>
-        {activePreviewDoc && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setPreviewDocKey(null)}
-            className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-5"
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 24, scale: 0.97 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.97 }}
-              transition={{ duration: 0.22 }}
-              onClick={(e) => e.stopPropagation()}
-              onContextMenu={(e) => e.preventDefault()}
-              className="w-full max-w-4xl h-[88vh] rounded-t-3xl sm:rounded-3xl bg-[#0D111A] border border-white/15 flex flex-col overflow-hidden shadow-2xl select-none"
-            >
-              {/* Modal Top Toolbar */}
-              <div className="px-4 sm:px-6 py-3.5 border-b border-white/10 flex items-center justify-between gap-3 bg-[#0B0F19]">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-9 h-9 rounded-xl bg-sky-400/10 border border-sky-400/25 flex items-center justify-center text-sky-400 shrink-0">
-                    <FileText className="w-4 h-4" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-display text-xs sm:text-base font-bold text-white truncate">
-                      {activePreviewDoc.title}
-                    </h3>
-                    <p className="text-[10px] sm:text-xs text-slate-400 truncate">
-                      {activePreviewDoc.subtitle}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button
-                    onClick={() => setZoomLevel((z) => Math.max(1, +(z - 0.25).toFixed(2)))}
-                    aria-label="Perkecil"
-                    className="p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-colors"
-                  >
-                    <ZoomOut className="w-4 h-4" />
-                  </button>
-                  <span className="text-[11px] font-mono text-slate-300 px-1 hidden sm:inline">
-                    {Math.round(zoomLevel * 100)}%
-                  </span>
-                  <button
-                    onClick={() => setZoomLevel((z) => Math.min(1.75, +(z + 0.25).toFixed(2)))}
-                    aria-label="Perbesar"
-                    className="p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-colors"
-                  >
-                    <ZoomIn className="w-4 h-4" />
-                  </button>
-
-                  {activePreviewDoc.verifyUrl && (
-                    <a
-                      href={activePreviewDoc.verifyUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-400/15 hover:bg-sky-400/25 border border-sky-400/30 text-xs font-medium text-sky-300 ml-1"
-                    >
-                      <ExternalLink className="w-3.5 h-3.5" />
-                      <span>{activePreviewDoc.verifyLabel}</span>
-                    </a>
-                  )}
-
-                  <button
-                    onClick={() => setPreviewDocKey(null)}
-                    aria-label="Tutup"
-                    className="p-2 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-slate-200 hover:text-white transition-colors ml-1"
-                  >
-                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Read-Only High-DPI Document Pages */}
-              <div className="flex-1 overflow-auto bg-[#07090E] p-3 sm:p-6">
-                <div
-                  className="mx-auto space-y-4 transition-all duration-150 origin-top"
-                  style={{ maxWidth: `${Math.round(780 * zoomLevel)}px` }}
+                <button
+                  onClick={() => setPreviewDocKey(null)}
+                  aria-label="Tutup"
+                  className="p-2 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-slate-200 hover:text-white transition-colors ml-1"
                 >
-                  {activePreviewDoc.pages.map((src, idx) => (
-                    <div
-                      key={src}
-                      className="rounded-xl overflow-hidden border border-white/10 shadow-xl bg-white"
-                    >
-                      <img
-                        src={src}
-                        alt={`${activePreviewDoc.title} - Halaman ${idx + 1}`}
-                        draggable={false}
-                        className="w-full h-auto block pointer-events-none select-none"
-                      />
-                    </div>
-                  ))}
-                </div>
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+
+            {/* Read-Only High-DPI Document Pages */}
+            <div className="flex-1 overflow-auto bg-[#07090E] p-3 sm:p-6">
+              <div
+                className="mx-auto space-y-4 transition-all duration-150 origin-top"
+                style={{ maxWidth: `${Math.round(780 * zoomLevel)}px` }}
+              >
+                {activePreviewDoc.pages.map((src, idx) => (
+                  <div
+                    key={src}
+                    className="rounded-xl overflow-hidden border border-white/10 shadow-xl bg-white"
+                  >
+                    <img
+                      src={src}
+                      alt={`${activePreviewDoc.title} - Halaman ${idx + 1}`}
+                      draggable={false}
+                      className="w-full h-auto block pointer-events-none select-none"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Clean Independent Footer */}
       <footer className="relative z-10 border-t border-white/[0.06] py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
           <span>© {new Date().getFullYear()} Bayu Saputra Portfolio</span>
 
           <div className="flex items-center gap-3">
@@ -1456,7 +1563,7 @@ export default function App() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={name}
-                className="text-slate-500 hover:text-slate-200 transition-colors"
+                className="text-slate-400 hover:text-slate-100 transition-colors"
               >
                 <Icon className="w-4 h-4" />
               </a>
