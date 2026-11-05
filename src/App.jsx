@@ -230,7 +230,7 @@ function RevealSection({ id, className = '', children }) {
           io.disconnect();
         }
       },
-      { rootMargin: '-60px' }
+      { rootMargin: '220px 0px -40px 0px' }
     );
     io.observe(el);
     return () => io.disconnect();
@@ -242,7 +242,7 @@ function RevealSection({ id, className = '', children }) {
       ref={ref}
       className={`reveal-section ${visible ? 'is-visible' : ''} ${className}`}
     >
-      {children}
+      {typeof children === 'function' ? children(visible) : children}
     </section>
   );
 }
@@ -333,7 +333,7 @@ export default function App() {
       setMount3D(true);
     };
 
-    const timer = window.setTimeout(trigger3D, 2200);
+    const timer = window.setTimeout(trigger3D, 3200);
     window.addEventListener('pointerdown', trigger3D, { once: true, passive: true });
     window.addEventListener('pointermove', trigger3D, { once: true, passive: true });
     window.addEventListener('touchstart', trigger3D, { once: true, passive: true });
@@ -678,87 +678,93 @@ export default function App() {
           id="keahlian"
           className="py-14 sm:py-16 border-t border-white/[0.06]"
         >
-          <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10 space-y-2">
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-400">
-              <Cpu className="w-3.5 h-3.5" />
-              <span>Web Development · Mobile · Dasar ML &amp; DL</span>
-            </span>
-            <h2 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
-              Teknologi &amp; Tools yang Digunakan
-            </h2>
-          </div>
+          {(isNear) => (
+            <>
+              <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10 space-y-2">
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-400">
+                  <Cpu className="w-3.5 h-3.5" />
+                  <span>Web Development · Mobile · Dasar ML &amp; DL</span>
+                </span>
+                <h2 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                  Teknologi &amp; Tools yang Digunakan
+                </h2>
+              </div>
 
-          <div className="space-y-3.5 sm:space-y-4 overflow-hidden marquee-mask">
-            {/* Row 1 -> Left */}
-            <div className="flex w-max animate-marquee-left hover:[animation-play-state:paused] gap-3 sm:gap-4">
-              {[...row1Tech, ...row1Tech].map((item, idx) => {
-                const FallbackIcon = item.LucideIcon;
-                return (
-                  <div
-                    key={`${item.name}-${idx}`}
-                    className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-[#0D111A]/95 border border-white/[0.08] hover:border-sky-400/35 transition-colors min-w-[185px] sm:min-w-[215px]"
-                  >
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.05] flex items-center justify-center shrink-0">
-                      {item.iconUrl ? (
-                        <img
-                          src={item.iconUrl}
-                          alt={item.name}
-                          width="20"
-                          height="20"
-                          loading="lazy"
-                          decoding="async"
-                          className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                        />
-                      ) : (
-                        FallbackIcon && (
-                          <FallbackIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.iconColor || 'text-sky-400'}`} />
-                        )
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-display font-semibold text-xs sm:text-sm text-slate-100">{item.name}</p>
-                      <p className="text-[11px] sm:text-xs text-slate-400">{item.category}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+              <div className="space-y-3.5 sm:space-y-4 overflow-hidden marquee-mask">
+                {/* Row 1 -> Left */}
+                <div className="flex w-max animate-marquee-left hover:[animation-play-state:paused] gap-3 sm:gap-4">
+                  {[...row1Tech, ...row1Tech].map((item, idx) => {
+                    const FallbackIcon = item.LucideIcon;
+                    return (
+                      <div
+                        key={`${item.name}-${idx}`}
+                        className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-[#0D111A]/95 border border-white/[0.08] hover:border-sky-400/35 transition-colors min-w-[185px] sm:min-w-[215px]"
+                      >
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.05] flex items-center justify-center shrink-0">
+                          {item.iconUrl ? (
+                            isNear && (
+                              <img
+                                src={item.iconUrl}
+                                alt={item.name}
+                                width="20"
+                                height="20"
+                                decoding="async"
+                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                              />
+                            )
+                          ) : (
+                            FallbackIcon && (
+                              <FallbackIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.iconColor || 'text-sky-400'}`} />
+                            )
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-display font-semibold text-xs sm:text-sm text-slate-100">{item.name}</p>
+                          <p className="text-[11px] sm:text-xs text-slate-400">{item.category}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
 
-            {/* Row 2 -> Right */}
-            <div className="flex w-max animate-marquee-right hover:[animation-play-state:paused] gap-3 sm:gap-4">
-              {[...row2Tech, ...row2Tech].map((item, idx) => {
-                const FallbackIcon = item.LucideIcon;
-                return (
-                  <div
-                    key={`${item.name}-${idx}`}
-                    className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-[#0D111A]/95 border border-white/[0.08] hover:border-indigo-400/35 transition-colors min-w-[185px] sm:min-w-[215px]"
-                  >
-                    <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.05] flex items-center justify-center shrink-0">
-                      {item.iconUrl ? (
-                        <img
-                          src={item.iconUrl}
-                          alt={item.name}
-                          width="20"
-                          height="20"
-                          loading="lazy"
-                          decoding="async"
-                          className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                        />
-                      ) : (
-                        FallbackIcon && (
-                          <FallbackIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.iconColor || 'text-sky-400'}`} />
-                        )
-                      )}
-                    </div>
-                    <div>
-                      <p className="font-display font-semibold text-xs sm:text-sm text-slate-100">{item.name}</p>
-                      <p className="text-[11px] sm:text-xs text-slate-400">{item.category}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+                {/* Row 2 -> Right */}
+                <div className="flex w-max animate-marquee-right hover:[animation-play-state:paused] gap-3 sm:gap-4">
+                  {[...row2Tech, ...row2Tech].map((item, idx) => {
+                    const FallbackIcon = item.LucideIcon;
+                    return (
+                      <div
+                        key={`${item.name}-${idx}`}
+                        className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-[#0D111A]/95 border border-white/[0.08] hover:border-indigo-400/35 transition-colors min-w-[185px] sm:min-w-[215px]"
+                      >
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.05] flex items-center justify-center shrink-0">
+                          {item.iconUrl ? (
+                            isNear && (
+                              <img
+                                src={item.iconUrl}
+                                alt={item.name}
+                                width="20"
+                                height="20"
+                                decoding="async"
+                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                              />
+                            )
+                          ) : (
+                            FallbackIcon && (
+                              <FallbackIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.iconColor || 'text-sky-400'}`} />
+                            )
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-display font-semibold text-xs sm:text-sm text-slate-100">{item.name}</p>
+                          <p className="text-[11px] sm:text-xs text-slate-400">{item.category}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </>
+          )}
         </RevealSection>
 
         {/* PART 1: REAL LIVE PRODUCTION SHOWCASE — BALAI BAHASA PROVINSI RIAU */}
@@ -766,55 +772,58 @@ export default function App() {
           id="proyek"
           className="py-16 sm:py-20 border-t border-white/[0.06]"
         >
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10">
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-400/10 border border-emerald-400/25 text-xs font-medium text-emerald-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                <span>Website Live · Pengalaman Magang</span>
+          {(isNear) => (
+            <>
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10">
+                <div className="space-y-2">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-400/10 border border-emerald-400/25 text-xs font-medium text-emerald-300">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <span>Website Live · Pengalaman Magang</span>
+                  </div>
+                  <h2 className="font-display text-2xl sm:text-4xl font-bold text-white tracking-tight">
+                    Website Balai Bahasa Provinsi Riau
+                  </h2>
+                  <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
+                    Tiga website layanan publik (<strong className="text-slate-200 font-medium">PPID, SAPA, dan SKM</strong>) yang dikembangkan saat magang di Balai Bahasa Provinsi Riau (Kemendikdasmen) menggunakan Laravel &amp; Tailwind CSS.
+                  </p>
+                </div>
               </div>
-              <h2 className="font-display text-2xl sm:text-4xl font-bold text-white tracking-tight">
-                Website Balai Bahasa Provinsi Riau
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
-                Tiga website layanan publik (<strong className="text-slate-200 font-medium">PPID, SAPA, dan SKM</strong>) yang dikembangkan saat magang di Balai Bahasa Provinsi Riau (Kemendikdasmen) menggunakan Laravel &amp; Tailwind CSS.
-              </p>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-            {LIVE_KEMENDIKDASMEN_PROJECTS.map((project) => (
-              <SpotlightCard
-                key={project.id}
-                onClick={() => setSelectedProject(project)}
-                className="cursor-pointer group flex flex-col justify-between"
-              >
-                <div className="p-4 sm:p-5 flex flex-col h-full justify-between">
-                  <div>
-                    <div className="rounded-2xl overflow-hidden bg-[#090C14] border border-white/[0.1] mb-4 sm:mb-5 shadow-lg">
-                      <div className="px-3 py-2 bg-[#111624] border-b border-white/[0.07] flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-400/75" />
-                          <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400/75" />
-                          <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400/75" />
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+                {LIVE_KEMENDIKDASMEN_PROJECTS.map((project) => (
+                  <SpotlightCard
+                    key={project.id}
+                    onClick={() => setSelectedProject(project)}
+                    className="cursor-pointer group flex flex-col justify-between"
+                  >
+                    <div className="p-4 sm:p-5 flex flex-col h-full justify-between">
+                      <div>
+                        <div className="rounded-2xl overflow-hidden bg-[#090C14] border border-white/[0.1] mb-4 sm:mb-5 shadow-lg">
+                          <div className="px-3 py-2 bg-[#111624] border-b border-white/[0.07] flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-400/75" />
+                              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400/75" />
+                              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400/75" />
+                            </div>
+                            <span className="text-[10px] font-mono text-slate-400 truncate px-2 py-0.5 rounded bg-black/30 border border-white/[0.05]">
+                              {project.displayUrl}
+                            </span>
+                            <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" title="Online" />
+                          </div>
+
+                          <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                            {isNear && (
+                              <img
+                                src={project.image}
+                                alt={project.title}
+                                width="960"
+                                height="600"
+                                decoding="async"
+                                className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
+                              />
+                            )}
+                          </div>
                         </div>
-                        <span className="text-[10px] font-mono text-slate-400 truncate px-2 py-0.5 rounded bg-black/30 border border-white/[0.05]">
-                          {project.displayUrl}
-                        </span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" title="Online" />
-                      </div>
-
-                      <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
-                        <img
-                          src={project.image}
-                          alt={project.title}
-                          width="960"
-                          height="600"
-                          loading="lazy"
-                          decoding="async"
-                          className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
-                        />
-                      </div>
-                    </div>
 
                     <div className="px-1 space-y-1.5 sm:space-y-2">
                       <p className="text-[11px] font-medium text-sky-400">{project.subtitle}</p>
@@ -946,6 +955,8 @@ export default function App() {
               })}
             </div>
           </div>
+            </>
+          )}
         </RevealSection>
 
         {/* PENGALAMAN KERJA, PENCAPAIAN, PENDIDIKAN, SERTIFIKASI & PELATIHAN */}
