@@ -1,161 +1,151 @@
-import React, { useRef, useMemo, useEffect } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import * as THREE from 'three';
-
-function createSoftGlowTexture() {
-  const size = 64;
-  const canvas = document.createElement('canvas');
-  canvas.width = size;
-  canvas.height = size;
-  const ctx = canvas.getContext('2d');
-
-  const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  grad.addColorStop(0, 'rgba(255, 255, 255, 1)');
-  grad.addColorStop(0.3, 'rgba(186, 230, 253, 0.75)');
-  grad.addColorStop(0.7, 'rgba(56, 189, 248, 0.15)');
-  grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-  ctx.fillStyle = grad;
-  ctx.fillRect(0, 0, size, size);
-
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.needsUpdate = true;
-  return tex;
-}
-
-function InteractiveStarfield({ mouseRef }) {
-  const groupRef = useRef();
-  const count = 320;
-
-  const glowMap = useMemo(() => createSoftGlowTexture(), []);
-
-  const [positions, colors] = useMemo(() => {
-    const pos = new Float32Array(count * 3);
-    const col = new Float32Array(count * 3);
-    const sky = new THREE.Color('#7DD3FC');
-    const indigo = new THREE.Color('#A5B4FC');
-    const white = new THREE.Color('#F8FAFC');
-
-    for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 28;
-      pos[i * 3 + 1] = (Math.random() - 0.5) * 20;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 14 - 2;
-
-      const pick = Math.random();
-      const c = pick < 0.5 ? sky : pick < 0.8 ? indigo : white;
-      col[i * 3] = c.r;
-      col[i * 3 + 1] = c.g;
-      col[i * 3 + 2] = c.b;
-    }
-    return [pos, col];
-  }, []);
-
-  useFrame((_, delta) => {
-    if (!groupRef.current) return;
-    groupRef.current.rotation.y += delta * 0.018;
-
-    const targetX = mouseRef.current.x * 0.55;
-    const targetY = -mouseRef.current.y * 0.35 + mouseRef.current.scroll * 0.0012;
-
-    groupRef.current.position.x = THREE.MathUtils.lerp(groupRef.current.position.x, targetX, 0.04);
-    groupRef.current.position.y = THREE.MathUtils.lerp(groupRef.current.position.y, targetY, 0.04);
-  });
-
-  return (
-    <points ref={groupRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={count}
-          array={positions}
-          itemSize={3}
-        />
-        <bufferAttribute
-          attach="attributes-color"
-          count={count}
-          array={colors}
-          itemSize={3}
-        />
-      </bufferGeometry>
-      <pointsMaterial
-        size={0.16}
-        map={glowMap}
-        vertexColors
-        transparent
-        opacity={0.65}
-        blending={THREE.AdditiveBlending}
-        sizeAttenuation
-        depthWrite={false}
-      />
-    </points>
-  );
-}
-
-function PerspectiveWaveGrid({ mouseRef }) {
-  const meshRef = useRef();
-
-  const geometry = useMemo(() => {
-    const geo = new THREE.PlaneGeometry(38, 22, 44, 26);
-    geo.rotateX(-Math.PI * 0.44);
-    return geo;
-  }, []);
-
-  const basePositions = useMemo(() => {
-    return Float32Array.from(geometry.attributes.position.array);
-  }, [geometry]);
-
-  useFrame((state) => {
-    if (!meshRef.current) return;
-    const t = state.clock.getElapsedTime() * 0.55;
-    const posAttr = meshRef.current.geometry.attributes.position;
-    const arr = posAttr.array;
-
-    for (let i = 0; i < posAttr.count; i++) {
-      const bx = basePositions[i * 3];
-      const bz = basePositions[i * 3 + 2];
-      const wave =
-        Math.sin(bx * 0.28 + t) * 0.28 + Math.cos(bz * 0.32 + t * 0.8) * 0.22;
-      arr[i * 3 + 1] = basePositions[i * 3 + 1] + wave;
-    }
-    posAttr.needsUpdate = true;
-
-    meshRef.current.rotation.z = THREE.MathUtils.lerp(
-      meshRef.current.rotation.z,
-      mouseRef.current.x * 0.03,
-      0.04
-    );
-  });
-
-  return (
-    <mesh ref={meshRef} geometry={geometry} position={[0, -4.6, -6]}>
-      <meshBasicMaterial
-        color="#38BDF8"
-        wireframe
-        transparent
-        opacity={0.065}
-        depthWrite={false}
-      />
-    </mesh>
-  );
-}
+import React, { useRef, useEffect } from 'react';
 
 export default function Scene3DBackground() {
-  const mouseRef = useRef({ x: 0, y: 0, scroll: 0 });
+  const canvasRef = useRef(null);
 
   useEffect(() => {
-    const handleMove = (e) => {
-      mouseRef.current.x = (e.clientX / window.innerWidth - 0.5) * 2;
-      mouseRef.current.y = (e.clientY / window.innerHeight - 0.5) * 2;
-    };
-    const handleScroll = () => {
-      mouseRef.current.scroll = window.scrollY || 0;
+    const prefersReduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+    if (prefersReduced) return;
+
+    let rafId = 0;
+    let idleId = 0;
+    let disposed = false;
+
+    const startCanvas = () => {
+      if (disposed) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d', { alpha: true });
+      if (!ctx) return;
+
+      const isMobile = window.innerWidth < 768;
+      const starCount = isMobile ? 65 : 130;
+      let w = 0;
+      let h = 0;
+
+      const resize = () => {
+        w = window.innerWidth;
+        h = window.innerHeight;
+        const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+        canvas.width = Math.floor(w * dpr);
+        canvas.height = Math.floor(h * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      };
+      resize();
+
+      const palette = [
+        'rgba(125, 211, 252, ',
+        'rgba(165, 180, 252, ',
+        'rgba(248, 250, 252, ',
+      ];
+
+      const stars = Array.from({ length: starCount }, () => ({
+        x: Math.random(),
+        y: Math.random(),
+        z: 0.25 + Math.random() * 0.75,
+        r: 0.7 + Math.random() * 1.4,
+        c: palette[Math.floor(Math.random() * palette.length)],
+        phase: Math.random() * Math.PI * 2,
+      }));
+
+      const mouse = { x: 0, y: 0, tx: 0, ty: 0, scroll: window.scrollY || 0 };
+
+      const onMove = (e) => {
+        mouse.tx = (e.clientX / (w || 1) - 0.5) * 26;
+        mouse.ty = (e.clientY / (h || 1) - 0.5) * 18;
+      };
+      const onScroll = () => {
+        mouse.scroll = window.scrollY || 0;
+      };
+
+      window.addEventListener('resize', resize, { passive: true });
+      window.addEventListener('pointermove', onMove, { passive: true });
+      window.addEventListener('scroll', onScroll, { passive: true });
+
+      let lastTime = 0;
+      const minInterval = isMobile ? 42 : 30; // ~24-33fps subtle ambient motion (minimal CPU/GPU)
+
+      const render = (now) => {
+        if (disposed) return;
+        rafId = requestAnimationFrame(render);
+
+        if (document.hidden || now - lastTime < minInterval) return;
+        lastTime = now;
+
+        const t = now * 0.0007;
+        mouse.x += (mouse.tx - mouse.x) * 0.06;
+        mouse.y += (mouse.ty - mouse.y) * 0.06;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // 1. Interactive Parallax Starfield
+        const scrollShift = mouse.scroll * 0.06;
+        for (let i = 0; i < starCount; i++) {
+          const s = stars[i];
+          const px = ((s.x * w + mouse.x * s.z + t * 8 * s.z) % w + w) % w;
+          const py = ((s.y * h - scrollShift * s.z + mouse.y * s.z) % h + h) % h;
+          const alpha = 0.28 + 0.35 * Math.sin(t * 2.2 + s.phase);
+
+          ctx.beginPath();
+          ctx.fillStyle = `${s.c}${alpha.toFixed(2)})`;
+          ctx.arc(px, py, s.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 2. Subtle Perspective Horizon Wave Lines at Bottom
+        const horizonY = h * 0.76;
+        const rows = isMobile ? 6 : 9;
+        ctx.lineWidth = 1;
+
+        for (let r = 0; r < rows; r++) {
+          const depth = r / (rows - 1);
+          const yBase = horizonY + Math.pow(depth, 1.55) * (h * 0.26);
+          const alpha = 0.025 + depth * 0.045;
+          ctx.strokeStyle = `rgba(56, 189, 248, ${alpha.toFixed(3)})`;
+          ctx.beginPath();
+          const step = isMobile ? 36 : 28;
+          for (let x = 0; x <= w + step; x += step) {
+            const wave =
+              Math.sin(x * 0.006 + t * 1.6 + r * 0.45) * (4 + depth * 9) +
+              Math.cos(x * 0.003 - t * 1.1) * 3;
+            const py = yBase + wave;
+            if (x === 0) ctx.moveTo(x, py);
+            else ctx.lineTo(x, py);
+          }
+          ctx.stroke();
+        }
+      };
+
+      rafId = requestAnimationFrame(render);
+
+      return () => {
+        window.removeEventListener('resize', resize);
+        window.removeEventListener('pointermove', onMove);
+        window.removeEventListener('scroll', onScroll);
+      };
     };
 
-    window.addEventListener('pointermove', handleMove, { passive: true });
-    window.addEventListener('scroll', handleScroll, { passive: true });
+    let cleanupListeners;
+    // Defer ambient canvas startup until browser idle after initial Hero paint
+    if ('requestIdleCallback' in window) {
+      idleId = window.requestIdleCallback(() => {
+        cleanupListeners = startCanvas();
+      }, { timeout: 1200 });
+    } else {
+      idleId = setTimeout(() => {
+        cleanupListeners = startCanvas();
+      }, 650);
+    }
+
     return () => {
-      window.removeEventListener('pointermove', handleMove);
-      window.removeEventListener('scroll', handleScroll);
+      disposed = true;
+      if (rafId) cancelAnimationFrame(rafId);
+      if ('cancelIdleCallback' in window && idleId) {
+        window.cancelIdleCallback(idleId);
+      } else if (idleId) {
+        clearTimeout(idleId);
+      }
+      cleanupListeners?.();
     };
   }, []);
 
@@ -176,26 +166,31 @@ export default function Scene3DBackground() {
         }}
       />
 
-      {/* Top Studio Volumetric Spotlight & Ambient Depth Glows */}
+      {/* Pre-Softened Volumetric Radial Spotlights (Zero GPU Blur-Filter Overhead!) */}
       <div
-        className="absolute -top-56 left-1/2 -translate-x-1/2 w-[920px] h-[520px] rounded-full opacity-90 blur-[130px]"
+        className="absolute inset-x-0 -top-40 h-[620px]"
         style={{
           background:
-            'radial-gradient(circle, rgba(56,189,248,0.14) 0%, rgba(99,102,241,0.08) 45%, transparent 75%)',
+            'radial-gradient(ellipse 60% 55% at 50% 20%, rgba(56,189,248,0.13) 0%, rgba(99,102,241,0.06) 45%, transparent 80%)',
         }}
       />
-      <div className="absolute top-[42%] -right-40 w-[520px] h-[520px] rounded-full bg-indigo-500/[0.06] blur-[150px]" />
-      <div className="absolute -bottom-48 left-12 w-[520px] h-[420px] rounded-full bg-sky-500/[0.06] blur-[150px]" />
+      <div
+        className="absolute top-[35%] right-0 w-[600px] h-[600px]"
+        style={{
+          background:
+            'radial-gradient(circle at 80% 50%, rgba(99,102,241,0.07) 0%, transparent 70%)',
+        }}
+      />
+      <div
+        className="absolute bottom-0 left-0 w-[600px] h-[500px]"
+        style={{
+          background:
+            'radial-gradient(circle at 20% 80%, rgba(56,189,248,0.07) 0%, transparent 70%)',
+        }}
+      />
 
-      {/* Live Three.js 3D Wave Horizon & Glowing Starfield */}
-      <Canvas
-        camera={{ position: [0, 0, 8.5], fov: 50 }}
-        dpr={[1, 1.5]}
-        gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
-      >
-        <InteractiveStarfield mouseRef={mouseRef} />
-        <PerspectiveWaveGrid mouseRef={mouseRef} />
-      </Canvas>
+      {/* Lightweight Idle-Mounted Ambient Starfield & Wave Horizon */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
     </div>
   );
 }

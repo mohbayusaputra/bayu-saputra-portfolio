@@ -1,122 +1,45 @@
-import * as THREE from 'three';
+import {
+  CanvasTexture,
+  ClampToEdgeWrapping,
+  LinearFilter,
+  RepeatWrapping,
+  SRGBColorSpace,
+  TextureLoader,
+} from 'three';
 
 /**
- * Loads Bayu's 100% original untouched photo (/bayu-profile.jpg),
- * neutralizes ONLY the red pasfoto backdrop cleanly, performs multi-step
- * bicubic upscaling to 1024x1024 HD, and applies a pure optical Luminance
- * Unsharp Mask (zero AI alteration — 100% Bayu's real face, sharper & HD!).
+ * Loads Bayu's pre-processed crisp 1:1 HD portrait (/bayu-card-portrait.webp)
+ * with zero main-thread pixel-loop overhead.
  */
-export function createCleanPortraitTexture(imageUrl, maxAnisotropy = 16, onComplete) {
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.onload = () => {
-    // Step 1: Draw original pixels at native resolution to neutralize red background cleanly
-    const srcSize = Math.min(img.width, img.height);
-    const sx = Math.floor((img.width - srcSize) / 2);
-    const sy = Math.floor((img.height - srcSize) / 2);
-
-    const step0 = document.createElement('canvas');
-    step0.width = srcSize;
-    step0.height = srcSize;
-    const ctx0 = step0.getContext('2d');
-    ctx0.drawImage(img, sx, sy, srcSize, srcSize, 0, 0, srcSize, srcSize);
-
-    const rawData = ctx0.getImageData(0, 0, srcSize, srcSize);
-    const rd = rawData.data;
-
-    for (let i = 0; i < rd.length; i += 4) {
-      const r = rd[i];
-      const g = rd[i + 1];
-      const b = rd[i + 2];
-
-      const redExcess = r - Math.max(g, b);
-      if (redExcess > 38 && g < 86 && b < 86) {
-        const strength = Math.min(1, (redExcess - 38) / 42);
-        // Smooth dark studio slate backdrop (#181B24)
-        const targetR = 24;
-        const targetG = 27;
-        const targetB = 36;
-        rd[i] = Math.round(r * (1 - strength) + targetR * strength);
-        rd[i + 1] = Math.round(g * (1 - strength) + targetG * strength);
-        rd[i + 2] = Math.round(b * (1 - strength) + targetB * strength);
-      }
-    }
-    ctx0.putImageData(rawData, 0, 0);
-
-    // Step 2: Progressive 2x Bicubic Upscaling (eliminates single-step bilinear blur)
-    const sizes = [384, 768, 1024];
-    let currentCanvas = step0;
-
-    for (const nextSize of sizes) {
-      const nextCanvas = document.createElement('canvas');
-      nextCanvas.width = nextSize;
-      nextCanvas.height = nextSize;
-      const nctx = nextCanvas.getContext('2d');
-      nctx.imageSmoothingEnabled = true;
-      nctx.imageSmoothingQuality = 'high';
-      nctx.drawImage(currentCanvas, 0, 0, nextSize, nextSize);
-      currentCanvas = nextCanvas;
-    }
-
-    // Step 3: Pure Optical Luminance Unsharp Mask (restores crisp eye, hair & collar detail)
-    const finalSize = 1024;
-    const fctx = currentCanvas.getContext('2d');
-
-    // Create slightly blurred copy for unsharp mask kernel
-    const blurCanvas = document.createElement('canvas');
-    blurCanvas.width = finalSize;
-    blurCanvas.height = finalSize;
-    const bctx = blurCanvas.getContext('2d');
-    bctx.filter = 'blur(1.1px)';
-    bctx.drawImage(currentCanvas, 0, 0);
-
-    const sharpImg = fctx.getImageData(0, 0, finalSize, finalSize);
-    const blurImg = bctx.getImageData(0, 0, finalSize, finalSize);
-    const sd = sharpImg.data;
-    const bd = blurImg.data;
-    const amount = 0.52;
-
-    for (let i = 0; i < sd.length; i += 4) {
-      const diffR = sd[i] - bd[i];
-      const diffG = sd[i + 1] - bd[i + 1];
-      const diffB = sd[i + 2] - bd[i + 2];
-
-      // Threshold small JPEG noise (< 3) while sharpening true edges
-      if (Math.abs(diffR) + Math.abs(diffG) + Math.abs(diffB) > 7) {
-        sd[i] = Math.max(0, Math.min(255, Math.round(sd[i] + diffR * amount)));
-        sd[i + 1] = Math.max(0, Math.min(255, Math.round(sd[i + 1] + diffG * amount)));
-        sd[i + 2] = Math.max(0, Math.min(255, Math.round(sd[i + 2] + diffB * amount)));
-      }
-    }
-    fctx.putImageData(sharpImg, 0, 0);
-
-    const tex = new THREE.CanvasTexture(currentCanvas);
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = maxAnisotropy;
-    // Disable blurry mipmap down-switching so portrait stays 100% HD at any tilt angle
-    tex.generateMipmaps = false;
-    tex.minFilter = THREE.LinearFilter;
-    tex.magFilter = THREE.LinearFilter;
-    tex.needsUpdate = true;
-    onComplete(tex);
-  };
-  img.src = imageUrl;
+export function loadCleanPortraitTexture(imageUrl, maxAnisotropy = 8, onComplete) {
+  const loader = new TextureLoader();
+  loader.load(
+    imageUrl,
+    (tex) => {
+      tex.colorSpace = SRGBColorSpace;
+      tex.anisotropy = maxAnisotropy;
+      tex.generateMipmaps = false;
+      tex.minFilter = LinearFilter;
+      tex.magFilter = LinearFilter;
+      tex.needsUpdate = true;
+      onComplete?.(tex);
+    },
+    undefined,
+    () => {}
+  );
 }
 
 /**
- * 4K Ultra-HD (2048 x 3072) Dark Developer ID Card Textures
+ * Crisp HD (1024 x 1536) Front Developer ID Card Texture
  */
-export function createCardShellTextures(maxAnisotropy = 16) {
-  const scale = 2; // 2048 x 3072 4K Ultra-HD
+export function createFrontCardTexture(maxAnisotropy = 8) {
   const logicalW = 1024;
   const logicalH = 1536;
 
-  // --- FRONT ---
   const frontCanvas = document.createElement('canvas');
-  frontCanvas.width = logicalW * scale;
-  frontCanvas.height = logicalH * scale;
+  frontCanvas.width = logicalW;
+  frontCanvas.height = logicalH;
   const fctx = frontCanvas.getContext('2d');
-  fctx.scale(scale, scale);
 
   // Crisp Deep Obsidian Gradient
   const bgGrad = fctx.createLinearGradient(0, 0, logicalW, logicalH);
@@ -170,12 +93,12 @@ export function createCardShellTextures(maxAnisotropy = 16) {
   fctx.fill();
 
   fctx.fillStyle = '#F0F9FF';
-  fctx.font = '700 19px "Inter", sans-serif';
+  fctx.font = '700 19px "Inter", system-ui, sans-serif';
   fctx.fillText('VERIFIED', logicalW - 206, 127);
 
-  // Exact 1:1 Square Portrait Frame (740 x 740 — Zero Horizontal Stretch!)
+  // Exact 1:1 Square Portrait Frame (740 x 740)
   const frameSize = 740;
-  const frameX = (logicalW - frameSize) / 2; // 142
+  const frameX = (logicalW - frameSize) / 2;
   const frameY = 186;
 
   fctx.fillStyle = '#181B24';
@@ -191,11 +114,11 @@ export function createCardShellTextures(maxAnisotropy = 16) {
 
   // Name & Role
   fctx.fillStyle = '#FFFFFF';
-  fctx.font = '700 70px "Plus Jakarta Sans", "Inter", sans-serif';
+  fctx.font = '700 70px "Plus Jakarta Sans", "Inter", system-ui, sans-serif';
   fctx.fillText('Bayu Saputra', 84, 1040);
 
   fctx.fillStyle = '#38BDF8';
-  fctx.font = '600 31px "Inter", sans-serif';
+  fctx.font = '600 31px "Inter", system-ui, sans-serif';
   fctx.fillText('Web Developer & Software Engineer', 84, 1096);
 
   // Divider
@@ -204,13 +127,13 @@ export function createCardShellTextures(maxAnisotropy = 16) {
 
   // Metadata Columns
   fctx.fillStyle = '#94A3B8';
-  fctx.font = '500 21px "Inter", sans-serif';
+  fctx.font = '500 21px "Inter", system-ui, sans-serif';
   fctx.fillText('Pendidikan', 84, 1198);
   fctx.fillText('Sertifikasi', 466, 1198);
   fctx.fillText('Domisili', 744, 1198);
 
   fctx.fillStyle = '#F8FAFC';
-  fctx.font = '700 25px "Inter", sans-serif';
+  fctx.font = '700 25px "Inter", system-ui, sans-serif';
   fctx.fillText('D4 TI — PCR (3.70)', 84, 1240);
   fctx.fillText('BNSP & MTCNA', 466, 1240);
   fctx.fillText('Pekanbaru', 744, 1240);
@@ -240,13 +163,32 @@ export function createCardShellTextures(maxAnisotropy = 16) {
   fctx.lineTo(logicalW - 84, 1356);
   fctx.stroke();
 
-  // --- BACK ---
-  const backCanvas = document.createElement('canvas');
-  backCanvas.width = logicalW * scale;
-  backCanvas.height = logicalH * scale;
-  const bctx = backCanvas.getContext('2d');
-  bctx.scale(scale, scale);
+  const frontTex = new CanvasTexture(frontCanvas);
+  frontTex.colorSpace = SRGBColorSpace;
+  frontTex.anisotropy = maxAnisotropy;
+  frontTex.generateMipmaps = false;
+  frontTex.minFilter = LinearFilter;
+  frontTex.magFilter = LinearFilter;
+  frontTex.needsUpdate = true;
+  return frontTex;
+}
 
+/**
+ * Crisp HD (1024 x 1536) Back Developer ID Card Texture
+ */
+export function createBackCardTexture(maxAnisotropy = 8) {
+  const logicalW = 1024;
+  const logicalH = 1536;
+
+  const backCanvas = document.createElement('canvas');
+  backCanvas.width = logicalW;
+  backCanvas.height = logicalH;
+  const bctx = backCanvas.getContext('2d');
+
+  const bgGrad = bctx.createLinearGradient(0, 0, logicalW, logicalH);
+  bgGrad.addColorStop(0, '#151924');
+  bgGrad.addColorStop(0.55, '#0D1017');
+  bgGrad.addColorStop(1, '#080A0F');
   bctx.fillStyle = bgGrad;
   bctx.fillRect(0, 0, logicalW, logicalH);
 
@@ -254,7 +196,7 @@ export function createCardShellTextures(maxAnisotropy = 16) {
   bctx.fillRect(0, 115, logicalW, 135);
 
   bctx.fillStyle = '#FFFFFF';
-  bctx.font = '700 38px "Plus Jakarta Sans", "Inter", sans-serif';
+  bctx.font = '700 38px "Plus Jakarta Sans", "Inter", system-ui, sans-serif';
   bctx.fillText('Profil & Kredensial Singkat', 84, 345);
   bctx.fillStyle = '#38BDF8';
   bctx.fillRect(84, 372, 72, 5);
@@ -271,83 +213,69 @@ export function createCardShellTextures(maxAnisotropy = 16) {
   rows.forEach(([label, val], idx) => {
     const y = 450 + idx * 140;
     bctx.fillStyle = '#94A3B8';
-    bctx.font = '600 21px "Inter", sans-serif';
+    bctx.font = '600 21px "Inter", system-ui, sans-serif';
     bctx.fillText(label, 84, y);
 
     bctx.fillStyle = '#F8FAFC';
-    bctx.font = '600 26px "Inter", sans-serif';
+    bctx.font = '600 26px "Inter", system-ui, sans-serif';
     bctx.fillText(val, 84, y + 38);
 
     bctx.fillStyle = 'rgba(255,255,255,0.09)';
     bctx.fillRect(84, y + 68, logicalW - 168, 2);
   });
 
-  const frontTex = new THREE.CanvasTexture(frontCanvas);
-  frontTex.colorSpace = THREE.SRGBColorSpace;
-  frontTex.anisotropy = maxAnisotropy;
-  frontTex.generateMipmaps = false;
-  frontTex.minFilter = THREE.LinearFilter;
-  frontTex.magFilter = THREE.LinearFilter;
-  frontTex.needsUpdate = true;
-
-  const backTex = new THREE.CanvasTexture(backCanvas);
-  backTex.colorSpace = THREE.SRGBColorSpace;
+  const backTex = new CanvasTexture(backCanvas);
+  backTex.colorSpace = SRGBColorSpace;
   backTex.anisotropy = maxAnisotropy;
   backTex.generateMipmaps = false;
-  backTex.minFilter = THREE.LinearFilter;
-  backTex.magFilter = THREE.LinearFilter;
+  backTex.minFilter = LinearFilter;
+  backTex.magFilter = LinearFilter;
   backTex.needsUpdate = true;
-
-  return { frontTex, backTex };
+  return backTex;
 }
 
 /**
- * Ultra-HD (2048 x 256) Woven Lanyard Strap Texture with Crisp Typography
+ * Crisp Woven Lanyard Strap Texture (1024 x 128)
  */
-export function createStrapTexture(maxAnisotropy = 16) {
+export function createStrapTexture(maxAnisotropy = 8) {
   const canvas = document.createElement('canvas');
-  canvas.width = 2048;
-  canvas.height = 256;
+  canvas.width = 1024;
+  canvas.height = 128;
   const ctx = canvas.getContext('2d');
 
-  // Deep Woven Strap Base
   ctx.fillStyle = '#0F131D';
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-  // Subtle Woven Diagonal Micro-Ribbing
-  ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-  ctx.lineWidth = 3;
-  for (let x = -256; x < canvas.width + 256; x += 18) {
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.035)';
+  ctx.lineWidth = 2;
+  for (let x = -128; x < canvas.width + 128; x += 12) {
     ctx.beginPath();
     ctx.moveTo(x, 0);
-    ctx.lineTo(x + 128, canvas.height);
+    ctx.lineTo(x + 64, canvas.height);
     ctx.stroke();
   }
 
-  // Cyan-Slate Edge Stitching Lines
   ctx.fillStyle = 'rgba(56, 189, 248, 0.45)';
-  ctx.fillRect(0, 8, canvas.width, 4);
-  ctx.fillRect(0, canvas.height - 12, canvas.width, 4);
+  ctx.fillRect(0, 4, canvas.width, 2.5);
+  ctx.fillRect(0, canvas.height - 6.5, canvas.width, 2.5);
 
-  // Accent Dot
   ctx.fillStyle = '#38BDF8';
   ctx.beginPath();
-  ctx.arc(76, canvas.height / 2, 11, 0, Math.PI * 2);
+  ctx.arc(38, canvas.height / 2, 5.5, 0, Math.PI * 2);
   ctx.fill();
 
-  // Sharp High-Contrast Strap Print
   ctx.fillStyle = '#F8FAFC';
-  ctx.font = '700 54px "Plus Jakarta Sans", "Inter", sans-serif';
+  ctx.font = '700 27px "Plus Jakarta Sans", "Inter", system-ui, sans-serif';
   ctx.textBaseline = 'middle';
-  ctx.fillText('BAYU SAPUTRA     •     WEB DEVELOPER', 132, canvas.height / 2 + 2);
+  ctx.fillText('BAYU SAPUTRA     •     WEB DEVELOPER', 66, canvas.height / 2 + 1);
 
-  const tex = new THREE.CanvasTexture(canvas);
-  tex.colorSpace = THREE.SRGBColorSpace;
+  const tex = new CanvasTexture(canvas);
+  tex.colorSpace = SRGBColorSpace;
   tex.anisotropy = maxAnisotropy;
-  tex.wrapS = THREE.RepeatWrapping;
-  tex.wrapT = THREE.ClampToEdgeWrapping;
-  tex.minFilter = THREE.LinearFilter;
-  tex.magFilter = THREE.LinearFilter;
+  tex.wrapS = RepeatWrapping;
+  tex.wrapT = ClampToEdgeWrapping;
+  tex.minFilter = LinearFilter;
+  tex.magFilter = LinearFilter;
   tex.generateMipmaps = false;
   tex.needsUpdate = true;
   return tex;

@@ -20,3 +20,6 @@ dist-ssr
 Thumbs.db
 .env
 .env.*
+
+.vercel
+.env*

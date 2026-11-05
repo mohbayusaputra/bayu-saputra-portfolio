@@ -7,52 +7,52 @@ import {
   Sparkles,
 } from 'lucide-react';
 
-// Crisp official vector brand logos via SimpleIcons CDN + Lucide icons for engineering & AI domains
+// Crisp official vector brand logos served locally with 1-year immutable cache + Lucide icons for engineering & AI domains
 export const TECH_STACK_ITEMS = [
   {
     name: 'Laravel',
     category: 'PHP Web Framework',
-    iconUrl: 'https://cdn.simpleicons.org/laravel/F87171',
+    iconUrl: '/tech/laravel.svg',
   },
   {
     name: 'Tailwind CSS',
     category: 'Modern UI Styling',
-    iconUrl: 'https://cdn.simpleicons.org/tailwindcss/38BDF8',
+    iconUrl: '/tech/tailwindcss.svg',
   },
   {
     name: 'PHP',
     category: 'Backend Development',
-    iconUrl: 'https://cdn.simpleicons.org/php/93C5FD',
+    iconUrl: '/tech/php.svg',
   },
   {
     name: 'CodeIgniter',
     category: 'PHP MVC Framework',
-    iconUrl: 'https://cdn.simpleicons.org/codeigniter/FB923C',
+    iconUrl: '/tech/codeigniter.svg',
   },
   {
     name: 'MySQL',
     category: 'Relational Database',
-    iconUrl: 'https://cdn.simpleicons.org/mysql/60A5FA',
+    iconUrl: '/tech/mysql.svg',
   },
   {
     name: 'JavaScript',
     category: 'Interactive Web',
-    iconUrl: 'https://cdn.simpleicons.org/javascript/FDE047',
+    iconUrl: '/tech/javascript.svg',
   },
   {
     name: 'HTML5 & CSS3',
     category: 'Semantic Web UI',
-    iconUrl: 'https://cdn.simpleicons.org/html5/FB923C',
+    iconUrl: '/tech/html5.svg',
   },
   {
     name: 'Kotlin',
     category: 'Android Native',
-    iconUrl: 'https://cdn.simpleicons.org/kotlin/A78BFA',
+    iconUrl: '/tech/kotlin.svg',
   },
   {
     name: 'Android Studio',
     category: 'Mobile Development',
-    iconUrl: 'https://cdn.simpleicons.org/androidstudio/4ADE80',
+    iconUrl: '/tech/androidstudio.svg',
   },
   {
     name: 'Prompt Engineering',
@@ -81,12 +81,12 @@ export const TECH_STACK_ITEMS = [
   {
     name: 'Figma & UCD',
     category: 'User-Centered Design',
-    iconUrl: 'https://cdn.simpleicons.org/figma/F472B6',
+    iconUrl: '/tech/figma.svg',
   },
   {
     name: 'Git & GitHub',
     category: 'Version Control',
-    iconUrl: 'https://cdn.simpleicons.org/github/F8FAFC',
+    iconUrl: '/tech/github.svg',
   },
   {
     name: 'Data Warehouse',
@@ -97,7 +97,7 @@ export const TECH_STACK_ITEMS = [
   {
     name: 'Google Colab',
     category: 'Model Training',
-    iconUrl: 'https://cdn.simpleicons.org/googlecolab/FBBF24',
+    iconUrl: '/tech/googlecolab.svg',
   },
   {
     name: 'MikroTik (MTCNA)',
