@@ -35,6 +35,97 @@
   -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
 }
 
+/* Pure GPU-Composited Zipper & Split Vault Door Intro (0ms JS Main-Thread Work) */
+@keyframes zipperPullGlide {
+  0% {
+    transform: translate3d(-50%, 4vh, 0) translateY(-50%) scale(1);
+    opacity: 1;
+  }
+  72% {
+    transform: translate3d(-50%, 94vh, 0) translateY(-50%) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(-50%, 96vh, 0) translateY(-50%) scale(0.8);
+    opacity: 0;
+  }
+}
+
+@keyframes seamUnzip {
+  0% { transform: scaleY(0); }
+  100% { transform: scaleY(1); }
+}
+
+@keyframes teethUnzip {
+  0% { transform: scaleY(1); }
+  100% { transform: scaleY(0); }
+}
+
+@keyframes vaultSlideLeft {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-104%, 0, 0); }
+}
+
+@keyframes vaultSlideRight {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(104%, 0, 0); }
+}
+
+@keyframes vaultHideRoot {
+  0%, 99% { opacity: 1; visibility: visible; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+.vault-zipper-pull {
+  animation: zipperPullGlide 0.72s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  will-change: transform, opacity;
+}
+
+.vault-seam {
+  transform: scaleY(0);
+  animation: seamUnzip 0.56s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  will-change: transform;
+}
+
+.vault-teeth {
+  animation: teethUnzip 0.56s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  will-change: transform;
+}
+
+.vault-progress-bar {
+  transform: scaleX(0);
+  animation: seamUnzip 0.54s ease-out forwards;
+}
+
+@keyframes barFill {
+  0% { transform: scaleX(0); }
+  100% { transform: scaleX(1); }
+}
+.vault-progress-bar {
+  animation: barFill 0.54s ease-out forwards;
+  will-change: transform;
+}
+
+.vault-door-left {
+  animation: vaultSlideLeft 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.54s forwards;
+  will-change: transform;
+}
+
+.vault-door-right {
+  animation: vaultSlideRight 0.52s cubic-bezier(0.22, 1, 0.36, 1) 0.54s forwards;
+  will-change: transform;
+}
+
+.vault-loader-root {
+  animation: vaultHideRoot 1.08s linear forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vault-loader-root {
+    display: none;
+  }
+}
+
 @keyframes roleSlideIn {
   0% {
     opacity: 0;

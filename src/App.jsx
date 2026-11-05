@@ -309,7 +309,6 @@ function LanyardStaticPreview({ hidden }) {
 }
 
 export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
   const [mount3D, setMount3D] = useState(false);
   const [lanyard3DReady, setLanyard3DReady] = useState(false);
   const [roleIdx, setRoleIdx] = useState(0);
@@ -325,22 +324,27 @@ export default function App() {
   const email = 'bayusaputra100704@gmail.com';
   const activePreviewDoc = previewDocKey ? PREVIEW_DOCS[previewDocKey] : null;
 
-  // Defer 3D WebGL chunk initialization until right after initial Hero paint & vault door reveal
+  // Activate 3D WebGL immediately on first user pointer/touch/scroll or softly after initial quiet load
   useEffect(() => {
-    let idleId = 0;
-    const timer = window.setTimeout(() => {
-      if ('requestIdleCallback' in window) {
-        idleId = window.requestIdleCallback(() => setMount3D(true), { timeout: 600 });
-      } else {
-        setMount3D(true);
-      }
-    }, 950);
+    let activated = false;
+    const trigger3D = () => {
+      if (activated) return;
+      activated = true;
+      setMount3D(true);
+    };
+
+    const timer = window.setTimeout(trigger3D, 2200);
+    window.addEventListener('pointerdown', trigger3D, { once: true, passive: true });
+    window.addEventListener('pointermove', trigger3D, { once: true, passive: true });
+    window.addEventListener('touchstart', trigger3D, { once: true, passive: true });
+    window.addEventListener('scroll', trigger3D, { once: true, passive: true });
 
     return () => {
       clearTimeout(timer);
-      if ('cancelIdleCallback' in window && idleId) {
-        window.cancelIdleCallback(idleId);
-      }
+      window.removeEventListener('pointerdown', trigger3D);
+      window.removeEventListener('pointermove', trigger3D);
+      window.removeEventListener('touchstart', trigger3D);
+      window.removeEventListener('scroll', trigger3D);
     };
   }, []);
 
@@ -396,8 +400,8 @@ export default function App() {
 
   return (
     <div id="top" className="min-h-screen bg-[#05070B] text-slate-100 relative pb-24 md:pb-0">
-      {/* Intro Zipper & Split-Door Loading Screen */}
-      {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
+      {/* Intro Zipper & Split-Door Loading Screen (Pure CSS GPU Compositor) */}
+      <LoadingScreen />
 
       {/* Ambient Starfield, Horizon Wave & Architectural Spotlight */}
       <Scene3DBackground />
