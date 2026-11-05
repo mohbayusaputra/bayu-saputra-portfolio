@@ -1,26 +1,38 @@
-# Bayu Saputra — 3D Interactive Portfolio
+# Website Portofolio Bayu Saputra
 
-Website portofolio interaktif **Bayu Saputra** (*Web Developer & Software Engineer*) yang dibangun menggunakan **React**, **Three.js (`@react-three/fiber`)**, **Rapier 3D Physics (`@react-three/rapier`)**, **Tailwind CSS**, dan **Framer Motion**.
+Repositori ini berisi kode sumber untuk website portofolio pribadi **Bayu Saputra** (Lulusan D4 Teknik Informatika Politeknik Caltex Riau).
 
-## Fitur Utama
-- **Ultra-HD 3D Physics Lanyard ID Card**: Kartu ID interaktif dengan simulasi fisika tali (Rapier + MeshLine) yang dapat ditarik, diayunkan, dan dibalik depan-belakang dengan tekstur 4K.
-- **Zipper & Split-Door Intro Loader**: Animasi pembuka interaktif bergaya resleting & pintu geser belah tengah.
-- **3D Interactive Wave & Starfield Background**: Latar belakang WebGL ringan yang merespons pergerakan kursor dan *scroll*.
-- **Live Production Showcase**: Tautan langsung dan tangkapan layar asli tiga website layanan publik Balai Bahasa Provinsi Riau (Kemendikdasmen):
+Link website: **[bayusaputra-portofolio.vercel.app](https://bayusaputra-portofolio.vercel.app)**
+
+## Isi Halaman
+
+- **Profil & Kartu ID**: Ringkasan profil, tautan cepat, dan kartu tanda pengenal yang bisa digeser atau dibalik.
+- **Teknologi & Tools**: Daftar bahasa pemrograman, framework, dan perangkat yang digunakan dalam pengembangan web maupun aplikasi.
+- **Proyek Magang (Balai Bahasa Provinsi Riau)**: Tautan dan informasi tiga website layanan publik yang dikerjakan selama magang:
   - [PPID Balai Bahasa Provinsi Riau](https://ppidbbpriau.kemendikdasmen.go.id/)
-  - [SAPA — Sistem Aspirasi dan Pelayanan (Buku Tamu Digital)](https://ppidbbpriau.kemendikdasmen.go.id/portal/tamu)
+  - [SAPA — Absensi Buku Tamu Digital](https://ppidbbpriau.kemendikdasmen.go.id/portal/tamu)
   - [SKM — Survei Kepuasan Masyarakat](https://ppidbbpriau.kemendikdasmen.go.id/portal/survei)
-- **Read-Only Document & Certificate Previewer**: Pratinjau CV dan sertifikat resmi dengan fitur *zoom* yang kompatibel penuh di perangkat mobile maupun desktop.
-- **Responsive Dual Navigation**: *Floating top navbar* untuk desktop dan *bottom app bar* untuk tampilan ponsel.
+- **Proyek Akhir & Tugas Kuliah**: Dokumentasi sistem penerimaan santri baru pada Proyek Akhir serta beberapa proyek mata kuliah (web, aplikasi Android, dan dasar kecerdasan buatan).
+- **Pengalaman, Pencapaian & Kredensial**: Riwayat magang, beasiswa pendidikan (2022–2026), pendidikan formal, organisasi, serta pratinjau dokumen CV dan sertifikat.
+- **Tema Gelap & Terang**: Mendukung pergantian tampilan mode gelap (*dark*) dan mode terang (*light*) di perangkat desktop maupun ponsel.
 
-## Menjalankan Secara Lokal
+## Teknologi yang Digunakan
+
+- React & Vite
+- Tailwind CSS
+- Three.js
+- Lucide Icons
+
+## Cara Menjalankan di Komputer Lokal
+
+Pastikan Node.js sudah terpasang, kemudian jalankan perintah berikut di terminal:
 
 ```bash
 npm install
 npm run dev
 ```
 
-Build produksi:
+Untuk membuat *build* produksi:
 
 ```bash
 npm run build
