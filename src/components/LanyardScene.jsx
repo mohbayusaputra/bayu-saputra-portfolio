@@ -12,7 +12,7 @@ import {
   MathUtils,
   Mesh,
   MeshBasicMaterial,
-  MeshStandardMaterial,
+  MeshLambertMaterial,
   PerspectiveCamera,
   Plane,
   PlaneGeometry,
@@ -189,26 +189,22 @@ export default function LanyardScene({
       const trackGeo = (g) => (geometries.push(g), g);
       const trackMat = (m) => (materials.push(m), m);
 
-      // Metallic Clip Group at top of card
+      // Metallic Clip Group at top of card (Fast Lambert Shading — Zero PBR Shader Stall!)
       const clipGroup = new Group();
       clipGroup.position.set(0, 1.39, 0);
 
-      const clipBodyMat = trackMat(
-        new MeshStandardMaterial({ color: '#334155', metalness: 0.78, roughness: 0.24 })
-      );
-      const clipSilverMat = trackMat(
-        new MeshStandardMaterial({ color: '#E2E8F0', metalness: 0.85, roughness: 0.18 })
-      );
+      const clipBodyMat = trackMat(new MeshLambertMaterial({ color: '#475569' }));
+      const clipSilverMat = trackMat(new MeshLambertMaterial({ color: '#E2E8F0' }));
 
       clipGroup.add(
         new Mesh(trackGeo(createRoundedBoxGeometry(0.42, 0.15, 0.08, 0.025)), clipBodyMat)
       );
-      const ringMesh = new Mesh(trackGeo(new TorusGeometry(0.085, 0.018, 16, 32)), clipSilverMat);
+      const ringMesh = new Mesh(trackGeo(new TorusGeometry(0.085, 0.018, 14, 28)), clipSilverMat);
       ringMesh.position.set(0, 0.13, 0);
       clipGroup.add(ringMesh);
 
       const swivelMesh = new Mesh(
-        trackGeo(new CylinderGeometry(0.032, 0.04, 0.11, 18)),
+        trackGeo(new CylinderGeometry(0.032, 0.04, 0.11, 16)),
         clipSilverMat
       );
       swivelMesh.position.set(0, 0.21, 0);
@@ -218,19 +214,17 @@ export default function LanyardScene({
       // Sleek Dark Acrylic Card Body
       const bodyMesh = new Mesh(
         trackGeo(createRoundedBoxGeometry(1.88, 2.72, 0.052, 0.065)),
-        trackMat(new MeshStandardMaterial({ color: '#0D1017', metalness: 0.22, roughness: 0.28 }))
+        trackMat(new MeshLambertMaterial({ color: '#111622' }))
       );
       cardVisual.add(bodyMesh);
 
-      // Front Card Face
+      // Front Card Face (Unwashed Crisp HD Texture)
       const faceGeo = trackGeo(new PlaneGeometry(1.82, 2.66));
       const frontMesh = new Mesh(
         faceGeo,
         trackMat(
-          new MeshStandardMaterial({
+          new MeshBasicMaterial({
             map: frontTex,
-            roughness: 0.34,
-            metalness: 0.04,
             toneMapped: false,
           })
         )
@@ -262,10 +256,8 @@ export default function LanyardScene({
       const backMesh = new Mesh(
         faceGeo,
         trackMat(
-          new MeshStandardMaterial({
+          new MeshBasicMaterial({
             map: backTex,
-            roughness: 0.34,
-            metalness: 0.04,
             toneMapped: false,
           })
         )
