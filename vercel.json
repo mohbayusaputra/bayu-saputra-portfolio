@@ -19,7 +19,16 @@
       ]
     },
     {
-      "source": "/bayu-card-portrait.webp",
+      "source": "/(bayu-card-portrait|bayu-card-portrait-sm)\\.webp",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/favicon.svg",
       "headers": [
         {
           "key": "Cache-Control",

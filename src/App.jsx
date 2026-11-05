@@ -275,11 +275,13 @@ function LanyardStaticPreview({ hidden }) {
         </div>
         <div className="aspect-square w-full rounded-xl overflow-hidden border border-sky-400/30 bg-[#181B24] mb-2.5">
           <img
-            src="/bayu-card-portrait.webp"
+            src="/bayu-card-portrait-sm.webp"
+            srcSet="/bayu-card-portrait-sm.webp 288w, /bayu-card-portrait.webp 768w"
+            sizes="(max-width: 640px) 148px, (max-width: 1024px) 188px, 216px"
             alt=""
             width="240"
             height="240"
-            decoding="sync"
+            decoding="async"
             className="w-full h-full object-cover"
           />
         </div>
@@ -327,24 +329,36 @@ export default function App() {
   // Activate 3D WebGL immediately on first user pointer/touch/scroll or softly after initial quiet load
   useEffect(() => {
     let activated = false;
-    const trigger3D = () => {
+    let fontsQueued = false;
+    const warmOptionalFonts = () => {
+      if (fontsQueued) return;
+      fontsQueued = true;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href =
+        'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@600;700&display=optional';
+      document.head.appendChild(link);
+    };
+    const trigger3D = (fromInteraction = false) => {
+      if (fromInteraction) warmOptionalFonts();
       if (activated) return;
       activated = true;
       setMount3D(true);
     };
+    const handleInteract = () => trigger3D(true);
 
-    const timer = window.setTimeout(trigger3D, 3200);
-    window.addEventListener('pointerdown', trigger3D, { once: true, passive: true });
-    window.addEventListener('pointermove', trigger3D, { once: true, passive: true });
-    window.addEventListener('touchstart', trigger3D, { once: true, passive: true });
-    window.addEventListener('scroll', trigger3D, { once: true, passive: true });
+    const timer = window.setTimeout(() => trigger3D(false), 3200);
+    window.addEventListener('pointerdown', handleInteract, { once: true, passive: true });
+    window.addEventListener('pointermove', handleInteract, { once: true, passive: true });
+    window.addEventListener('touchstart', handleInteract, { once: true, passive: true });
+    window.addEventListener('scroll', handleInteract, { once: true, passive: true });
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('pointerdown', trigger3D);
-      window.removeEventListener('pointermove', trigger3D);
-      window.removeEventListener('touchstart', trigger3D);
-      window.removeEventListener('scroll', trigger3D);
+      window.removeEventListener('pointerdown', handleInteract);
+      window.removeEventListener('pointermove', handleInteract);
+      window.removeEventListener('touchstart', handleInteract);
+      window.removeEventListener('scroll', handleInteract);
     };
   }, []);
 

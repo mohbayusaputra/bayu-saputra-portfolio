@@ -71,34 +71,34 @@
 }
 
 .vault-zipper-pull {
-  animation: zipperPullGlide 0.68s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation: zipperPullGlide 0.48s cubic-bezier(0.65, 0, 0.35, 1) forwards;
   will-change: transform;
 }
 
 .vault-seam {
   transform: scaleY(0);
-  animation: seamUnzip 0.52s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation: seamUnzip 0.36s cubic-bezier(0.65, 0, 0.35, 1) forwards;
   will-change: transform;
 }
 
 .vault-teeth {
-  animation: teethUnzip 0.52s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+  animation: teethUnzip 0.36s cubic-bezier(0.65, 0, 0.35, 1) forwards;
   will-change: transform;
 }
 
 .vault-progress-bar {
   transform: scaleX(0);
-  animation: barFill 0.5s ease-out forwards;
+  animation: barFill 0.34s ease-out forwards;
   will-change: transform;
 }
 
 .vault-door-left {
-  animation: vaultSlideLeft 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.48s forwards;
+  animation: vaultSlideLeft 0.44s cubic-bezier(0.22, 1, 0.36, 1) 0.28s forwards;
   will-change: transform;
 }
 
 .vault-door-right {
-  animation: vaultSlideRight 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.48s forwards;
+  animation: vaultSlideRight 0.44s cubic-bezier(0.22, 1, 0.36, 1) 0.28s forwards;
   will-change: transform;
 }
 

@@ -28,6 +28,16 @@ async function prerender() {
     html = html.replace(cssMatch[0], `<style>${cssContent}</style>`);
   }
 
+  // Defer React hydration entry script until immediately after First Paint so SSG HTML paints unblocked
+  const scriptMatch = html.match(/<script type="module"[^>]*src="(\/assets\/index-[^"]+\.js)"[^>]*><\/script>/);
+  html = html.replace(/<link rel="modulepreload"[^>]*>/g, '');
+  if (scriptMatch) {
+    const entrySrc = scriptMatch[1];
+    html = html.replace(scriptMatch[0], '');
+    const postPaintHydrate = `<script>requestAnimationFrame(function(){setTimeout(function(){var s=document.createElement('script');s.type='module';s.src='${entrySrc}';document.body.appendChild(s)},0)});</script>`;
+    html = html.replace('</body>', `${postPaintHydrate}</body>`);
+  }
+
   // Inject pre-rendered SSG HTML into #root for instant FCP & LCP before JS downloads
   html = html.replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`);
 
