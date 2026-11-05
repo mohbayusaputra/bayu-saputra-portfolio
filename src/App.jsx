@@ -9,7 +9,6 @@ import {
   Check,
   CheckCircle2,
   ClipboardCheck,
-  Code2,
   Copy,
   Cpu,
   ExternalLink,
@@ -21,15 +20,16 @@ import {
   Hand,
   Layers,
   Mail,
-  MapPin,
   MessageCircle,
   Monitor,
+  Moon,
   Phone,
   RefreshCw,
   RotateCw,
   ShieldCheck,
   Smartphone,
   Sparkles,
+  Sun,
   User,
   UserCheck,
   Users,
@@ -99,7 +99,7 @@ const LIVE_KEMENDIKDASMEN_PROJECTS = [
     org: 'Balai Bahasa Provinsi Riau (Kemendikdasmen)',
     url: 'https://ppidbbpriau.kemendikdasmen.go.id/',
     displayUrl: 'ppidbbpriau.kemendikdasmen.go.id',
-    badge: 'Live Production',
+    badge: 'Website Publik',
     image: '/projects/ppid-live.webp',
     Icon: Globe,
     summary:
@@ -115,7 +115,7 @@ const LIVE_KEMENDIKDASMEN_PROJECTS = [
     org: 'Balai Bahasa Provinsi Riau (Kemendikdasmen)',
     url: 'https://ppidbbpriau.kemendikdasmen.go.id/portal/tamu',
     displayUrl: 'ppidbbpriau.kemendikdasmen.go.id/portal/tamu',
-    badge: 'Live Portal',
+    badge: 'Portal Layanan',
     image: '/projects/sapa-live.webp',
     Icon: UserCheck,
     summary:
@@ -131,7 +131,7 @@ const LIVE_KEMENDIKDASMEN_PROJECTS = [
     org: 'Balai Bahasa Provinsi Riau (Kemendikdasmen)',
     url: 'https://ppidbbpriau.kemendikdasmen.go.id/portal/survei',
     displayUrl: 'ppidbbpriau.kemendikdasmen.go.id/portal/survei',
-    badge: 'Live Portal',
+    badge: 'Portal Survei',
     image: '/projects/skm-live.webp',
     Icon: ClipboardCheck,
     summary:
@@ -149,9 +149,9 @@ const ACADEMIC_PROJECTS = [
     title: 'Sistem Penerimaan Santri Baru (PSB Online)',
     org: 'Proyek Akhir · Pondok Pesantren Bidayatul Hidayah',
     category: 'Web',
-    badge: 'Proyek Akhir · Live',
+    badge: 'Proyek Akhir',
     Icon: GraduationCap,
-    accent: 'text-sky-400 bg-sky-400/10 border-sky-400/25',
+    accent: 'text-sky-600 dark:text-sky-400 bg-sky-500/10 border-sky-500/25',
     summary:
       'Sistem informasi pendaftaran santri baru berbasis web pada Proyek Akhir menggunakan metode User-Centered Design (UCD) untuk digitalisasi alur registrasi dan berkas.',
     details:
@@ -165,7 +165,7 @@ const ACADEMIC_PROJECTS = [
     category: 'Web',
     badge: 'Proyek Matkul',
     Icon: Monitor,
-    accent: 'text-indigo-400 bg-indigo-400/10 border-indigo-400/25',
+    accent: 'text-indigo-600 dark:text-indigo-400 bg-indigo-500/10 border-indigo-500/25',
     summary:
       'Aplikasi web pengelolaan konten layar informasi digital untuk menampilkan jadwal, pengumuman, dan informasi kegiatan secara dinamis.',
     details:
@@ -179,7 +179,7 @@ const ACADEMIC_PROJECTS = [
     category: 'AI & ML',
     badge: 'Proyek Matkul',
     Icon: Eye,
-    accent: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/25',
+    accent: 'text-cyan-600 dark:text-cyan-400 bg-cyan-500/10 border-cyan-500/25',
     summary:
       'Eksplorasi aplikasi web pemantau kewaspadaan pengendara melalui kamera secara langsung menggunakan deteksi area mata berbasis Computer Vision.',
     details:
@@ -193,7 +193,7 @@ const ACADEMIC_PROJECTS = [
     category: 'Mobile & AI',
     badge: 'Proyek Matkul',
     Icon: Smartphone,
-    accent: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/25',
+    accent: 'text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 border-emerald-500/25',
     summary:
       'Aplikasi Android penentu rekomendasi menu makanan harian berdasarkan perhitungan kalori BMR dan pengelompokan nutrisi K-Means.',
     details:
@@ -207,7 +207,7 @@ const ACADEMIC_PROJECTS = [
     category: 'Mobile & AI',
     badge: 'Proyek Matkul · Tim',
     Icon: BrainCircuit,
-    accent: 'text-violet-400 bg-violet-400/10 border-violet-400/25',
+    accent: 'text-violet-600 dark:text-violet-400 bg-violet-500/10 border-violet-500/25',
     summary:
       'Proyek kolaborasi tim yang mengimplementasikan model Convolutional Neural Network (CNN) pada aplikasi mobile untuk mengenali gestur tangan.',
     details:
@@ -216,7 +216,17 @@ const ACADEMIC_PROJECTS = [
   },
 ];
 
-function RevealSection({ id, className = '', children }) {
+/**
+ * Directional GPU-Composited Scroll Reveal Wrapper.
+ * Triggers smooth slide/scale entrance when elements actually enter the viewport.
+ */
+function ScrollReveal({
+  as: Tag = 'div',
+  direction = 'up',
+  delay = 0,
+  className = '',
+  children,
+}) {
   const ref = useRef(null);
   const [visible, setVisible] = useState(false);
 
@@ -230,19 +240,58 @@ function RevealSection({ id, className = '', children }) {
           io.disconnect();
         }
       },
-      { rootMargin: '220px 0px -40px 0px' }
+      { threshold: 0.12, rootMargin: '0px 0px -50px 0px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const dirClass =
+    direction === 'left'
+      ? 'sr-left'
+      : direction === 'right'
+        ? 'sr-right'
+        : direction === 'scale'
+          ? 'sr-scale'
+          : 'sr-up';
+
+  return (
+    <Tag
+      ref={ref}
+      style={delay ? { transitionDelay: `${delay}ms` } : undefined}
+      className={`sr-base ${dirClass} ${visible ? 'sr-visible' : ''} ${className}`}
+    >
+      {children}
+    </Tag>
+  );
+}
+
+/**
+ * Lazy-asset observer section for below-the-fold images without hiding layout early.
+ */
+function ObservedSection({ id, className = '', children }) {
+  const ref = useRef(null);
+  const [isNear, setIsNear] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setIsNear(true);
+          io.disconnect();
+        }
+      },
+      { rootMargin: '280px 0px' }
     );
     io.observe(el);
     return () => io.disconnect();
   }, []);
 
   return (
-    <section
-      id={id}
-      ref={ref}
-      className={`reveal-section ${visible ? 'is-visible' : ''} ${className}`}
-    >
-      {typeof children === 'function' ? children(visible) : children}
+    <section id={id} ref={ref} className={className}>
+      {typeof children === 'function' ? children(isNear) : children}
     </section>
   );
 }
@@ -265,7 +314,7 @@ function LanyardStaticPreview({ hidden }) {
       <div className="w-2.5 h-3 rounded-t bg-slate-300 -mt-0.5" />
       <div className="w-8 sm:w-9 h-2.5 rounded-md bg-slate-700 border border-white/20 shadow" />
       {/* Sleek Developer ID Pass Card */}
-      <div className="w-[172px] sm:w-[216px] lg:w-[244px] rounded-2xl bg-gradient-to-br from-[#151924] via-[#0D1017] to-[#080A0F] border border-white/15 shadow-[0_22px_50px_rgba(0,0,0,0.85)] overflow-hidden p-3 sm:p-4 -mt-0.5">
+      <div className="w-[172px] sm:w-[216px] lg:w-[244px] rounded-2xl bg-gradient-to-br from-[#151924] via-[#0D1017] to-[#080A0F] border border-slate-700/70 dark:border-white/15 shadow-[0_22px_50px_rgba(15,23,42,0.35)] dark:shadow-[0_22px_50px_rgba(0,0,0,0.85)] overflow-hidden p-3 sm:p-4 -mt-0.5">
         <div className="h-1 w-full bg-gradient-to-r from-sky-400 via-indigo-400 to-transparent -mt-3 sm:-mt-4 mb-2.5" />
         <div className="flex items-center justify-between text-[7px] sm:text-[8px] font-mono text-slate-300 mb-2">
           <span>DEVELOPER ID PASS</span>
@@ -301,8 +350,8 @@ function LanyardStaticPreview({ hidden }) {
             <span className="text-white font-semibold">BNSP &amp; MTCNA</span>
           </div>
           <div>
-            <span className="text-slate-400 block">Domisili</span>
-            <span className="text-white font-semibold">Pekanbaru</span>
+            <span className="text-slate-400 block">Beasiswa</span>
+            <span className="text-white font-semibold">2022–2026</span>
           </div>
         </div>
       </div>
@@ -311,6 +360,7 @@ function LanyardStaticPreview({ hidden }) {
 }
 
 export default function App() {
+  const [theme, setTheme] = useState('dark');
   const [mount3D, setMount3D] = useState(false);
   const [lanyard3DReady, setLanyard3DReady] = useState(false);
   const [roleIdx, setRoleIdx] = useState(0);
@@ -325,8 +375,34 @@ export default function App() {
 
   const email = 'bayusaputra100704@gmail.com';
   const activePreviewDoc = previewDocKey ? PREVIEW_DOCS[previewDocKey] : null;
+  const isDark = theme === 'dark';
+  const defaultSpotlight = isDark ? 'rgba(56, 189, 248, 0.14)' : 'rgba(14, 165, 233, 0.10)';
 
-  // Activate 3D WebGL immediately on first user pointer/touch/scroll or softly after initial quiet load
+  // Sync saved theme preference on client mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('bs-theme');
+      if (saved === 'light' || saved === 'dark') {
+        setTheme(saved);
+        document.documentElement.classList.toggle('dark', saved === 'dark');
+      }
+    } catch {}
+  }, []);
+
+  const toggleTheme = () => {
+    setTheme((prev) => {
+      const next = prev === 'dark' ? 'light' : 'dark';
+      document.documentElement.classList.toggle('dark', next === 'dark');
+      const meta = document.getElementById('meta-theme-color');
+      if (meta) meta.setAttribute('content', next === 'dark' ? '#05070B' : '#F8FAFC');
+      try {
+        localStorage.setItem('bs-theme', next);
+      } catch {}
+      return next;
+    });
+  };
+
+  // Activate 3D WebGL immediately on first user pointer/touch/scroll or softly after initial load
   useEffect(() => {
     let activated = false;
     let fontsQueued = false;
@@ -413,29 +489,36 @@ export default function App() {
   const row2Tech = TECH_STACK_ITEMS.slice(9);
 
   return (
-    <div id="top" className="min-h-screen bg-[#05070B] text-slate-100 relative pb-24 md:pb-0">
-      {/* Intro Zipper & Split-Door Loading Screen (Pure CSS GPU Compositor) */}
+    <div
+      id="top"
+      className="min-h-screen bg-slate-50 dark:bg-[#05070B] text-slate-900 dark:text-slate-100 relative pb-24 md:pb-0 transition-colors duration-300"
+    >
+      {/* ~5-Second Zipper & Split-Door Loading Screen */}
       <LoadingScreen />
 
-      {/* Ambient Starfield, Horizon Wave & Architectural Spotlight */}
-      <Scene3DBackground />
+      {/* Animated 3D Wave Grid & Rotating 3D Starfield (Dark & Light Adaptive) */}
+      <Scene3DBackground theme={theme} />
 
-      {/* DESKTOP ONLY: Standard Floating Top Glass Navbar (hidden on mobile!) */}
+      {/* DESKTOP ONLY: Floating Top Glass Navbar */}
       <header className="hidden md:block fixed top-0 inset-x-0 z-40 px-6 pt-4">
-        <div className="max-w-6xl mx-auto rounded-full bg-[#0B0F19]/85 backdrop-blur-md border border-white/[0.09] px-5 h-14 flex items-center justify-between shadow-[0_12px_34px_rgba(0,0,0,0.55)]">
+        <div className="max-w-6xl mx-auto rounded-full bg-white/85 dark:bg-[#0B0F19]/85 backdrop-blur-md border border-slate-200/90 dark:border-white/[0.09] px-5 h-14 flex items-center justify-between shadow-[0_12px_32px_rgba(15,23,42,0.08)] dark:shadow-[0_12px_34px_rgba(0,0,0,0.55)] transition-colors duration-300">
           <a href="#top" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500/20 via-slate-900 to-indigo-500/20 border border-sky-400/35 flex items-center justify-center text-sky-400 group-hover:border-sky-300 group-hover:text-sky-300 transition-all shadow-[0_0_18px_rgba(56,189,248,0.16)]">
-              <Code2 className="w-4 h-4" />
-            </div>
+            <img
+              src="/favicon.svg"
+              alt="Logo BS"
+              width="34"
+              height="34"
+              className="w-8 h-8 rounded-xl shadow-sm group-hover:scale-105 transition-transform"
+            />
             <div className="flex items-baseline gap-0.5">
-              <span className="font-display font-bold text-sm text-white tracking-tight">
+              <span className="font-display font-bold text-sm text-slate-900 dark:text-white tracking-tight">
                 Bayu Saputra
               </span>
-              <span className="font-mono text-[11px] text-sky-400">.dev</span>
+              <span className="font-mono text-[11px] text-sky-600 dark:text-sky-400">.dev</span>
             </div>
           </a>
 
-          <nav className="flex items-center gap-1 bg-white/[0.03] p-1 rounded-full border border-white/[0.06]">
+          <nav className="flex items-center gap-1 bg-slate-100/90 dark:bg-white/[0.03] p-1 rounded-full border border-slate-200/80 dark:border-white/[0.06]">
             {NAV_ITEMS.map(({ id, label, href, Icon }) => {
               const isActive = activeSection === id;
               return (
@@ -444,11 +527,17 @@ export default function App() {
                   href={href}
                   className={`inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium transition-all ${
                     isActive
-                      ? 'bg-white/[0.1] text-white shadow-sm'
-                      : 'text-slate-400 hover:text-white hover:bg-white/[0.05]'
+                      ? 'bg-white dark:bg-white/[0.1] text-slate-900 dark:text-white shadow-sm'
+                      : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-white/60 dark:hover:bg-white/[0.05]'
                   }`}
                 >
-                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-sky-400' : 'text-slate-400'}`} />
+                  <Icon
+                    className={`w-3.5 h-3.5 ${
+                      isActive
+                        ? 'text-sky-600 dark:text-sky-400'
+                        : 'text-slate-500 dark:text-slate-400'
+                    }`}
+                  />
                   <span>{label}</span>
                 </a>
               );
@@ -457,10 +546,19 @@ export default function App() {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => openDocPreview('cv')}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.12] text-slate-200 text-xs font-medium transition-all"
+              onClick={toggleTheme}
+              aria-label={isDark ? 'Ganti ke tema terang' : 'Ganti ke tema gelap'}
+              title={isDark ? 'Mode Terang' : 'Mode Gelap'}
+              className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] border border-slate-200 dark:border-white/[0.12] flex items-center justify-center text-slate-700 dark:text-slate-200 transition-colors"
             >
-              <FileText className="w-3.5 h-3.5 text-sky-400" />
+              {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+            </button>
+
+            <button
+              onClick={() => openDocPreview('cv')}
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200/80 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] border border-slate-200 dark:border-white/[0.12] text-slate-800 dark:text-slate-200 text-xs font-medium transition-all"
+            >
+              <FileText className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
               <span>Preview CV</span>
             </button>
 
@@ -468,7 +566,7 @@ export default function App() {
               href="https://wa.me/6281228141650"
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-sky-400 hover:bg-sky-300 text-slate-950 text-xs font-semibold transition-all shadow-[0_0_20px_rgba(56,189,248,0.28)]"
+              className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-sky-500 hover:bg-sky-400 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 text-xs font-semibold transition-all shadow-[0_4px_16px_rgba(14,165,233,0.3)]"
             >
               <MessageCircle className="w-3.5 h-3.5" />
               <span>Hubungi</span>
@@ -477,10 +575,10 @@ export default function App() {
         </div>
       </header>
 
-      {/* MOBILE ONLY: Native App-Style Bottom Navigation Bar (hidden on desktop!) */}
+      {/* MOBILE ONLY: Bottom Navigation Bar */}
       <nav
         aria-label="Navigasi Mobile"
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-[#090D16]/95 border-t border-white/[0.1] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(0,0,0,0.65)]"
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#090D16]/95 backdrop-blur-md border-t border-slate-200 dark:border-white/[0.1] px-2 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-8px_24px_rgba(15,23,42,0.08)] dark:shadow-[0_-10px_30px_rgba(0,0,0,0.65)] transition-colors duration-300"
       >
         <div className="grid grid-cols-5 gap-1 max-w-md mx-auto">
           {NAV_ITEMS.map(({ id, mobileLabel, href, Icon }) => {
@@ -490,13 +588,15 @@ export default function App() {
                 key={id}
                 href={href}
                 className={`relative flex flex-col items-center justify-center py-1.5 rounded-xl transition-colors ${
-                  isActive ? 'text-sky-300' : 'text-slate-400 hover:text-slate-200'
+                  isActive
+                    ? 'text-sky-600 dark:text-sky-300'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                 }`}
               >
                 {isActive && (
-                  <span className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-sky-400/12 border border-sky-400/25" />
+                  <span className="absolute inset-x-2 inset-y-0.5 rounded-xl bg-sky-500/10 dark:bg-sky-400/12 border border-sky-500/25 dark:border-sky-400/25" />
                 )}
-                <Icon className={`w-4 h-4 relative z-10 ${isActive ? 'text-sky-400' : ''}`} />
+                <Icon className={`w-4 h-4 relative z-10 ${isActive ? 'text-sky-600 dark:text-sky-400' : ''}`} />
                 <span className="text-[10px] font-medium mt-1 relative z-10 leading-none">
                   {mobileLabel}
                 </span>
@@ -510,62 +610,94 @@ export default function App() {
         {/* MOBILE INLINE TOP HEADER */}
         <div className="md:hidden flex items-center justify-between pt-4 pb-1">
           <a href="#top" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500/20 via-slate-900 to-indigo-500/20 border border-sky-400/35 flex items-center justify-center text-sky-400">
-              <Code2 className="w-4 h-4" />
-            </div>
+            <img
+              src="/favicon.svg"
+              alt="Logo BS"
+              width="32"
+              height="32"
+              className="w-8 h-8 rounded-xl shadow-sm"
+            />
             <div className="flex items-baseline gap-0.5">
-              <span className="font-display font-bold text-sm text-white">Bayu Saputra</span>
-              <span className="font-mono text-[11px] text-sky-400">.dev</span>
+              <span className="font-display font-bold text-sm text-slate-900 dark:text-white">
+                Bayu Saputra
+              </span>
+              <span className="font-mono text-[11px] text-sky-600 dark:text-sky-400">.dev</span>
             </div>
           </a>
 
-          <button
-            onClick={() => openDocPreview('cv')}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/[0.12] text-xs font-medium text-slate-200 active:scale-95 transition-transform"
-          >
-            <FileText className="w-3.5 h-3.5 text-sky-400" />
-            <span>Preview CV</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              aria-label={isDark ? 'Ganti ke tema terang' : 'Ganti ke tema gelap'}
+              className="w-8 h-8 rounded-full bg-white/90 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.12] flex items-center justify-center text-slate-700 dark:text-slate-200 active:scale-95 transition-all"
+            >
+              {isDark ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-indigo-600" />}
+            </button>
+
+            <button
+              onClick={() => openDocPreview('cv')}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.12] text-xs font-medium text-slate-800 dark:text-slate-200 active:scale-95 transition-transform shadow-sm dark:shadow-none"
+            >
+              <FileText className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+              <span>Preview CV</span>
+            </button>
+          </div>
         </div>
 
-        {/* HERO SECTION + INTERACTIVE 3D LANYARD (Rendered immediately at opacity 1 for instant LCP!) */}
+        {/* HERO SECTION + INTERACTIVE 3D LANYARD */}
         <section className="min-h-[calc(100vh-4rem)] md:min-h-screen pt-2 md:pt-24 pb-10 md:pb-12 grid grid-cols-1 lg:grid-cols-12 items-center gap-6 lg:gap-8">
           {/* Left Hero Column */}
           <div className="lg:col-span-6 space-y-5 sm:space-y-6 order-2 lg:order-1">
-            {/* Availability Pill */}
-            <div className="inline-flex items-center gap-2.5 px-3 sm:px-3.5 py-1.5 rounded-full bg-sky-400/[0.08] border border-sky-400/20 text-[11px] sm:text-xs text-sky-200">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              <span className="w-2 h-2 rounded-full bg-emerald-400 -ml-4" />
-              <span>Siap Berkontribusi · Web Developer / Software Engineer</span>
+            {/* Clean Editorial Academic Eyebrow Badge (No AI-Slop Green Online Dot) */}
+            <div className="inline-flex items-center gap-2 px-3 sm:px-3.5 py-1.5 rounded-full bg-sky-500/10 dark:bg-sky-400/[0.08] border border-sky-500/25 dark:border-sky-400/20 text-[11px] sm:text-xs font-medium text-sky-800 dark:text-sky-200">
+              <GraduationCap className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+              <span>D4 Teknik Informatika · Politeknik Caltex Riau</span>
             </div>
 
             {/* Name & Animated Role Switcher */}
             <div className="space-y-2.5">
-              <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] bg-gradient-to-b from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
+              <h1 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1] bg-gradient-to-b from-slate-950 via-slate-800 to-slate-600 dark:from-white dark:via-slate-100 dark:to-slate-400 bg-clip-text text-transparent">
                 Bayu Saputra
               </h1>
 
               <div className="h-7 sm:h-9 overflow-hidden flex items-center gap-2 text-base sm:text-2xl font-display font-semibold">
-                <span className="text-slate-400 font-normal">Role:</span>
+                <span className="text-slate-500 dark:text-slate-400 font-normal">Bidang:</span>
                 <span
                   key={ROLES[roleIdx]}
-                  className="animate-role-in bg-gradient-to-r from-sky-400 to-indigo-400 bg-clip-text text-transparent"
+                  className="animate-role-in bg-gradient-to-r from-sky-600 to-indigo-600 dark:from-sky-400 dark:to-indigo-400 bg-clip-text text-transparent"
                 >
                   {ROLES[roleIdx]}
                 </span>
               </div>
             </div>
 
-            {/* Bio Sesuai Profil Magang Hub */}
-            <p className="text-xs sm:text-base text-slate-300/90 leading-relaxed max-w-xl">
-              Lulusan D4 Teknik Informatika <strong className="text-white font-medium">Politeknik Caltex Riau</strong> dengan IPK <strong className="text-sky-300 font-medium">3.70/4.00</strong> yang berminat di pengembangan web dan aplikasi. Berpengalaman sebagai Web Developer Intern di <strong className="text-white font-medium">Balai Bahasa Provinsi Riau</strong> membangun website PPID, absensi tamu, dan survei kepuasan masyarakat, serta membangun sistem penerimaan santri baru pada Proyek Akhir. Menguasai <strong className="text-white font-medium">PHP, CodeIgniter, dan Laravel</strong>, serta memiliki dasar machine learning dan deep learning. Terbiasa bekerja dalam tim, aktif berorganisasi, dan cepat belajar.
+            {/* Bio */}
+            <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300/90 leading-relaxed max-w-xl">
+              Lulusan D4 Teknik Informatika{' '}
+              <strong className="text-slate-900 dark:text-white font-semibold">
+                Politeknik Caltex Riau
+              </strong>{' '}
+              dengan IPK{' '}
+              <strong className="text-sky-600 dark:text-sky-300 font-semibold">3.70/4.00</strong>{' '}
+              yang berminat di pengembangan web dan aplikasi. Berpengalaman sebagai Web Developer
+              Intern di{' '}
+              <strong className="text-slate-900 dark:text-white font-semibold">
+                Balai Bahasa Provinsi Riau
+              </strong>{' '}
+              membangun website PPID, absensi tamu, dan survei kepuasan masyarakat, serta membangun
+              sistem penerimaan santri baru pada Proyek Akhir. Menguasai{' '}
+              <strong className="text-slate-900 dark:text-white font-semibold">
+                PHP, CodeIgniter, dan Laravel
+              </strong>
+              , serta memiliki dasar machine learning dan deep learning. Terbiasa bekerja dalam tim,
+              aktif berorganisasi, dan cepat belajar.
             </p>
 
             {/* Primary CTA Row */}
             <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 pt-1">
               <a
                 href="#proyek"
-                className="inline-flex items-center gap-2 px-5 py-2.5 sm:py-3 rounded-full bg-white hover:bg-sky-50 text-slate-950 text-xs sm:text-sm font-semibold transition-all shadow-[0_0_25px_rgba(255,255,255,0.16)]"
+                className="inline-flex items-center gap-2 px-5 py-2.5 sm:py-3 rounded-full bg-slate-900 hover:bg-slate-800 dark:bg-white dark:hover:bg-sky-50 text-white dark:text-slate-950 text-xs sm:text-sm font-semibold transition-all shadow-[0_8px_24px_rgba(15,23,42,0.18)] dark:shadow-[0_0_25px_rgba(255,255,255,0.16)]"
               >
                 <FolderGit2 className="w-4 h-4" />
                 <span>Lihat Karya</span>
@@ -573,24 +705,24 @@ export default function App() {
 
               <button
                 onClick={() => openDocPreview('cv')}
-                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-sky-400/15 hover:bg-sky-400/25 border border-sky-400/30 text-sky-200 text-xs sm:text-sm font-medium transition-colors"
+                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-sky-500/10 hover:bg-sky-500/20 dark:bg-sky-400/15 dark:hover:bg-sky-400/25 border border-sky-500/30 dark:border-sky-400/30 text-sky-800 dark:text-sky-200 text-xs sm:text-sm font-medium transition-colors"
               >
-                <Eye className="w-4 h-4 text-sky-400" />
+                <Eye className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                 <span>Preview CV</span>
               </button>
 
               <a
                 href="#kontak"
-                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-slate-200 text-xs sm:text-sm font-medium transition-colors"
+                className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 sm:py-3 rounded-full bg-white/90 hover:bg-slate-100 dark:bg-white/[0.05] dark:hover:bg-white/[0.1] border border-slate-200 dark:border-white/[0.1] text-slate-700 dark:text-slate-200 text-xs sm:text-sm font-medium transition-colors shadow-sm dark:shadow-none"
               >
-                <Mail className="w-4 h-4 text-sky-400" />
+                <Mail className="w-4 h-4 text-sky-600 dark:text-sky-400" />
                 <span>Kontak</span>
               </a>
             </div>
 
             {/* Social Media Quick Strip */}
             <div className="flex items-center gap-2 pt-1">
-              <span className="text-[11px] text-slate-400 mr-1">Sosial:</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 mr-1">Sosial:</span>
               {SOCIAL_LINKS.map(({ name, url, accent, Icon }) => (
                 <a
                   key={name}
@@ -599,7 +731,7 @@ export default function App() {
                   rel="noreferrer"
                   aria-label={name}
                   title={name}
-                  className={`w-9 h-9 rounded-full bg-white/[0.04] border border-white/[0.09] flex items-center justify-center text-slate-300 transition-all ${accent}`}
+                  className={`w-9 h-9 rounded-full bg-white/90 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.09] flex items-center justify-center text-slate-600 dark:text-slate-300 transition-all shadow-sm dark:shadow-none ${accent}`}
                 >
                   <Icon className="w-4 h-4" />
                 </a>
@@ -607,22 +739,38 @@ export default function App() {
             </div>
 
             {/* Key Metrics Highlight Strip */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-white/[0.08] max-w-xl">
-              <div className="p-2.5 sm:p-0 rounded-xl bg-white/[0.02] sm:bg-transparent border border-white/[0.05] sm:border-0">
-                <p className="font-display text-base sm:text-xl font-bold text-white">3.70/4.00</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">IPK D4 TI PCR</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-200/90 dark:border-white/[0.08] max-w-xl">
+              <div className="p-2.5 sm:p-0 rounded-xl bg-white/80 dark:bg-white/[0.02] sm:bg-transparent sm:dark:bg-transparent border border-slate-200/80 dark:border-white/[0.05] sm:border-0">
+                <p className="font-display text-base sm:text-xl font-bold text-slate-900 dark:text-white">
+                  3.70/4.00
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  IPK · Teknik Informatika
+                </p>
               </div>
-              <div className="p-2.5 sm:p-0 rounded-xl bg-white/[0.02] sm:bg-transparent border border-white/[0.05] sm:border-0">
-                <p className="font-display text-base sm:text-xl font-bold text-amber-300">Awardee</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Beasiswa Pemkab Rohil</p>
+              <div className="p-2.5 sm:p-0 rounded-xl bg-white/80 dark:bg-white/[0.02] sm:bg-transparent sm:dark:bg-transparent border border-slate-200/80 dark:border-white/[0.05] sm:border-0">
+                <p className="font-display text-base sm:text-xl font-bold text-amber-600 dark:text-amber-300">
+                  Awardee
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Beasiswa Penuh 2022–2026
+                </p>
               </div>
-              <div className="p-2.5 sm:p-0 rounded-xl bg-white/[0.02] sm:bg-transparent border border-white/[0.05] sm:border-0">
-                <p className="font-display text-base sm:text-xl font-bold text-sky-400">BNSP</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">Lulus Uji Programmer</p>
+              <div className="p-2.5 sm:p-0 rounded-xl bg-white/80 dark:bg-white/[0.02] sm:bg-transparent sm:dark:bg-transparent border border-slate-200/80 dark:border-white/[0.05] sm:border-0">
+                <p className="font-display text-base sm:text-xl font-bold text-sky-600 dark:text-sky-400">
+                  BNSP
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  Sertifikasi Programmer
+                </p>
               </div>
-              <div className="p-2.5 sm:p-0 rounded-xl bg-white/[0.02] sm:bg-transparent border border-white/[0.05] sm:border-0">
-                <p className="font-display text-base sm:text-xl font-bold text-indigo-400">MTCNA</p>
-                <p className="text-[11px] text-slate-400 mt-0.5">MikroTik 2024–2027</p>
+              <div className="p-2.5 sm:p-0 rounded-xl bg-white/80 dark:bg-white/[0.02] sm:bg-transparent sm:dark:bg-transparent border border-slate-200/80 dark:border-white/[0.05] sm:border-0">
+                <p className="font-display text-base sm:text-xl font-bold text-indigo-600 dark:text-indigo-400">
+                  MTCNA
+                </p>
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                  MikroTik 2024–2027
+                </p>
               </div>
             </div>
           </div>
@@ -636,8 +784,9 @@ export default function App() {
             <div
               className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 sm:w-80 h-64 sm:h-80 rounded-full"
               style={{
-                background:
-                  'radial-gradient(circle, rgba(56,189,248,0.16) 0%, rgba(99,102,241,0.12) 45%, transparent 72%)',
+                background: isDark
+                  ? 'radial-gradient(circle, rgba(56,189,248,0.16) 0%, rgba(99,102,241,0.12) 45%, transparent 72%)'
+                  : 'radial-gradient(circle, rgba(14,165,233,0.18) 0%, rgba(99,102,241,0.12) 45%, transparent 72%)',
               }}
             />
 
@@ -657,8 +806,8 @@ export default function App() {
 
             {/* Sleek Interactive Pill Controls Under Lanyard */}
             <div className="relative z-20 -mt-2 flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/[0.08] text-[11px] sm:text-xs text-slate-300">
-                <Hand className="w-3.5 h-3.5 text-sky-400" />
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/90 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] text-[11px] sm:text-xs text-slate-600 dark:text-slate-300 shadow-sm dark:shadow-none">
+                <Hand className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                 <span>Tarik kartu</span>
               </span>
 
@@ -667,9 +816,9 @@ export default function App() {
                   setMount3D(true);
                   setIsFlipped((f) => !f);
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-[11px] sm:text-xs font-medium text-slate-200 transition-colors active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-slate-100 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] border border-slate-200 dark:border-white/[0.1] text-[11px] sm:text-xs font-medium text-slate-800 dark:text-slate-200 transition-colors active:scale-95 shadow-sm dark:shadow-none"
               >
-                <RotateCw className="w-3.5 h-3.5 text-sky-400" />
+                <RotateCw className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                 <span>{isFlipped ? 'Depan' : 'Balik ID'}</span>
               </button>
 
@@ -678,9 +827,9 @@ export default function App() {
                   setMount3D(true);
                   setImpulseKey((k) => k + 1);
                 }}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-[11px] sm:text-xs font-medium text-slate-200 transition-colors active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-slate-100 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] border border-slate-200 dark:border-white/[0.1] text-[11px] sm:text-xs font-medium text-slate-800 dark:text-slate-200 transition-colors active:scale-95 shadow-sm dark:shadow-none"
               >
-                <RefreshCw className="w-3.5 h-3.5 text-indigo-400" />
+                <RefreshCw className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                 <span>Ayunkan</span>
               </button>
             </div>
@@ -688,762 +837,886 @@ export default function App() {
         </section>
 
         {/* DUAL-ROW INFINITE TECH STACK MARQUEE */}
-        <RevealSection
+        <ObservedSection
           id="keahlian"
-          className="py-14 sm:py-16 border-t border-white/[0.06]"
+          className="py-14 sm:py-16 border-t border-slate-200/80 dark:border-white/[0.06]"
         >
           {(isNear) => (
             <>
-              <div className="text-center max-w-xl mx-auto mb-8 sm:mb-10 space-y-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-400">
+              <ScrollReveal direction="up" className="text-center max-w-xl mx-auto mb-8 sm:mb-10 space-y-2">
+                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-600 dark:text-sky-400">
                   <Cpu className="w-3.5 h-3.5" />
                   <span>Web Development · Mobile · Dasar ML &amp; DL</span>
                 </span>
-                <h2 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
+                <h2 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
                   Teknologi &amp; Tools yang Digunakan
                 </h2>
-              </div>
+              </ScrollReveal>
 
               <div className="space-y-3.5 sm:space-y-4 overflow-hidden marquee-mask">
                 {/* Row 1 -> Left */}
-                <div className="flex w-max animate-marquee-left hover:[animation-play-state:paused] gap-3 sm:gap-4">
-                  {[...row1Tech, ...row1Tech].map((item, idx) => {
-                    const FallbackIcon = item.LucideIcon;
-                    return (
-                      <div
-                        key={`${item.name}-${idx}`}
-                        className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-[#0D111A]/95 border border-white/[0.08] hover:border-sky-400/35 transition-colors min-w-[185px] sm:min-w-[215px]"
-                      >
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.05] flex items-center justify-center shrink-0">
-                          {item.iconUrl ? (
-                            isNear && (
-                              <img
-                                src={item.iconUrl}
-                                alt={item.name}
-                                width="20"
-                                height="20"
-                                decoding="async"
-                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                              />
-                            )
-                          ) : (
-                            FallbackIcon && (
-                              <FallbackIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.iconColor || 'text-sky-400'}`} />
-                            )
-                          )}
+                <ScrollReveal direction="right" delay={80}>
+                  <div className="flex w-max animate-marquee-left hover:[animation-play-state:paused] gap-3 sm:gap-4">
+                    {[...row1Tech, ...row1Tech].map((item, idx) => {
+                      const FallbackIcon = item.LucideIcon;
+                      return (
+                        <div
+                          key={`${item.name}-${idx}`}
+                          className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-white/95 dark:bg-[#0D111A]/95 border border-slate-200/90 dark:border-white/[0.08] hover:border-sky-500/45 dark:hover:border-sky-400/35 transition-colors min-w-[185px] sm:min-w-[215px] shadow-sm dark:shadow-none"
+                        >
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900 dark:bg-white/[0.05] flex items-center justify-center shrink-0">
+                            {item.iconUrl ? (
+                              isNear && (
+                                <img
+                                  src={item.iconUrl}
+                                  alt={item.name}
+                                  width="20"
+                                  height="20"
+                                  decoding="async"
+                                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                                />
+                              )
+                            ) : (
+                              FallbackIcon && (
+                                <FallbackIcon
+                                  className={`w-4 h-4 sm:w-5 sm:h-5 ${item.iconColor || 'text-sky-400'}`}
+                                />
+                              )
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-display font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100">
+                              {item.name}
+                            </p>
+                            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+                              {item.category}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-display font-semibold text-xs sm:text-sm text-slate-100">{item.name}</p>
-                          <p className="text-[11px] sm:text-xs text-slate-400">{item.category}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                </ScrollReveal>
 
                 {/* Row 2 -> Right */}
-                <div className="flex w-max animate-marquee-right hover:[animation-play-state:paused] gap-3 sm:gap-4">
-                  {[...row2Tech, ...row2Tech].map((item, idx) => {
-                    const FallbackIcon = item.LucideIcon;
-                    return (
-                      <div
-                        key={`${item.name}-${idx}`}
-                        className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-[#0D111A]/95 border border-white/[0.08] hover:border-indigo-400/35 transition-colors min-w-[185px] sm:min-w-[215px]"
-                      >
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/[0.05] flex items-center justify-center shrink-0">
-                          {item.iconUrl ? (
-                            isNear && (
-                              <img
-                                src={item.iconUrl}
-                                alt={item.name}
-                                width="20"
-                                height="20"
-                                decoding="async"
-                                className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
-                              />
-                            )
-                          ) : (
-                            FallbackIcon && (
-                              <FallbackIcon className={`w-4 h-4 sm:w-5 sm:h-5 ${item.iconColor || 'text-sky-400'}`} />
-                            )
-                          )}
+                <ScrollReveal direction="left" delay={160}>
+                  <div className="flex w-max animate-marquee-right hover:[animation-play-state:paused] gap-3 sm:gap-4">
+                    {[...row2Tech, ...row2Tech].map((item, idx) => {
+                      const FallbackIcon = item.LucideIcon;
+                      return (
+                        <div
+                          key={`${item.name}-${idx}`}
+                          className="flex items-center gap-3 px-4 sm:px-5 py-3 sm:py-3.5 rounded-2xl bg-white/95 dark:bg-[#0D111A]/95 border border-slate-200/90 dark:border-white/[0.08] hover:border-indigo-500/45 dark:hover:border-indigo-400/35 transition-colors min-w-[185px] sm:min-w-[215px] shadow-sm dark:shadow-none"
+                        >
+                          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-900 dark:bg-white/[0.05] flex items-center justify-center shrink-0">
+                            {item.iconUrl ? (
+                              isNear && (
+                                <img
+                                  src={item.iconUrl}
+                                  alt={item.name}
+                                  width="20"
+                                  height="20"
+                                  decoding="async"
+                                  className="w-4 h-4 sm:w-5 sm:h-5 object-contain"
+                                />
+                              )
+                            ) : (
+                              FallbackIcon && (
+                                <FallbackIcon
+                                  className={`w-4 h-4 sm:w-5 sm:h-5 ${item.iconColor || 'text-sky-400'}`}
+                                />
+                              )
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-display font-semibold text-xs sm:text-sm text-slate-900 dark:text-slate-100">
+                              {item.name}
+                            </p>
+                            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400">
+                              {item.category}
+                            </p>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-display font-semibold text-xs sm:text-sm text-slate-100">{item.name}</p>
-                          <p className="text-[11px] sm:text-xs text-slate-400">{item.category}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                </ScrollReveal>
               </div>
             </>
           )}
-        </RevealSection>
+        </ObservedSection>
 
         {/* PART 1: REAL LIVE PRODUCTION SHOWCASE — BALAI BAHASA PROVINSI RIAU */}
-        <RevealSection
+        <ObservedSection
           id="proyek"
-          className="py-16 sm:py-20 border-t border-white/[0.06]"
+          className="py-16 sm:py-20 border-t border-slate-200/80 dark:border-white/[0.06]"
         >
           {(isNear) => (
             <>
-              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10">
+              <ScrollReveal
+                direction="left"
+                className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8 sm:mb-10"
+              >
                 <div className="space-y-2">
-                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-400/10 border border-emerald-400/25 text-xs font-medium text-emerald-300">
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <span>Website Live · Pengalaman Magang</span>
-                  </div>
-                  <h2 className="font-display text-2xl sm:text-4xl font-bold text-white tracking-tight">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-600 dark:text-sky-400">
+                    <Globe className="w-3.5 h-3.5" />
+                    <span>Pengalaman Magang · Kemendikdasmen</span>
+                  </span>
+                  <h2 className="font-display text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
                     Website Balai Bahasa Provinsi Riau
                   </h2>
-                  <p className="text-xs sm:text-sm text-slate-400 max-w-2xl leading-relaxed">
-                    Tiga website layanan publik (<strong className="text-slate-200 font-medium">PPID, SAPA, dan SKM</strong>) yang dikembangkan saat magang di Balai Bahasa Provinsi Riau (Kemendikdasmen) menggunakan Laravel &amp; Tailwind CSS.
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-2xl leading-relaxed">
+                    Tiga website layanan publik (
+                    <strong className="text-slate-900 dark:text-slate-200 font-semibold">
+                      PPID, SAPA, dan SKM
+                    </strong>
+                    ) yang dikembangkan saat magang di Balai Bahasa Provinsi Riau (Kemendikdasmen)
+                    menggunakan Laravel &amp; Tailwind CSS.
                   </p>
                 </div>
-              </div>
+              </ScrollReveal>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
-                {LIVE_KEMENDIKDASMEN_PROJECTS.map((project) => (
-                  <SpotlightCard
+                {LIVE_KEMENDIKDASMEN_PROJECTS.map((project, idx) => (
+                  <ScrollReveal
                     key={project.id}
-                    onClick={() => setSelectedProject(project)}
-                    className="cursor-pointer group flex flex-col justify-between"
+                    direction="up"
+                    delay={idx * 110}
+                    className="h-full"
                   >
-                    <div className="p-4 sm:p-5 flex flex-col h-full justify-between">
-                      <div>
-                        <div className="rounded-2xl overflow-hidden bg-[#090C14] border border-white/[0.1] mb-4 sm:mb-5 shadow-lg">
-                          <div className="px-3 py-2 bg-[#111624] border-b border-white/[0.07] flex items-center justify-between gap-2">
-                            <div className="flex items-center gap-1.5 shrink-0">
-                              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-400/75" />
-                              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400/75" />
-                              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-emerald-400/75" />
+                    <SpotlightCard
+                      spotlightColor={defaultSpotlight}
+                      onClick={() => setSelectedProject(project)}
+                      className="cursor-pointer group flex flex-col justify-between h-full"
+                    >
+                      <div className="p-4 sm:p-5 flex flex-col h-full justify-between">
+                        <div>
+                          <div className="rounded-2xl overflow-hidden bg-slate-900 dark:bg-[#090C14] border border-slate-200 dark:border-white/[0.1] mb-4 sm:mb-5 shadow-md">
+                            <div className="px-3 py-2 bg-slate-100 dark:bg-[#111624] border-b border-slate-200 dark:border-white/[0.07] flex items-center justify-between gap-2">
+                              <div className="flex items-center gap-1.5 shrink-0">
+                                <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-rose-400/80" />
+                                <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-amber-400/80" />
+                                <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-sky-400/80" />
+                              </div>
+                              <span className="text-[10px] font-mono text-slate-600 dark:text-slate-400 truncate px-2 py-0.5 rounded bg-white dark:bg-black/30 border border-slate-200/80 dark:border-white/[0.05]">
+                                {project.displayUrl}
+                              </span>
+                              <ExternalLink className="w-3 h-3 text-slate-400 shrink-0" />
                             </div>
-                            <span className="text-[10px] font-mono text-slate-400 truncate px-2 py-0.5 rounded bg-black/30 border border-white/[0.05]">
-                              {project.displayUrl}
+
+                            <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
+                              {isNear && (
+                                <img
+                                  src={project.image}
+                                  alt={project.title}
+                                  width="960"
+                                  height="600"
+                                  decoding="async"
+                                  className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
+                                />
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="px-1 space-y-1.5 sm:space-y-2">
+                            <p className="text-[11px] font-medium text-sky-600 dark:text-sky-400">
+                              {project.subtitle}
+                            </p>
+                            <h3 className="font-display text-base sm:text-lg font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-300 transition-colors leading-snug">
+                              {project.title}
+                            </h3>
+                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                              {project.summary}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="px-1 pt-4 mt-5 border-t border-slate-200/80 dark:border-white/[0.07] space-y-3.5">
+                          <div className="flex flex-wrap gap-1.5">
+                            {project.tech.slice(0, 4).map((t) => (
+                              <span
+                                key={t}
+                                className="px-2.5 py-0.5 rounded-md bg-slate-100 dark:bg-white/[0.04] border border-slate-200/90 dark:border-white/[0.08] text-[11px] text-slate-700 dark:text-slate-300"
+                              >
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+
+                          <div className="flex items-center justify-between gap-2 pt-1">
+                            <a
+                              href={project.url}
+                              target="_blank"
+                              rel="noreferrer"
+                              onClick={(e) => e.stopPropagation()}
+                              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-500/10 hover:bg-sky-500 dark:bg-sky-400/15 dark:hover:bg-sky-400 text-sky-700 hover:text-white dark:text-sky-300 dark:hover:text-slate-950 border border-sky-500/30 dark:border-sky-400/30 text-xs font-semibold transition-all"
+                            >
+                              <ExternalLink className="w-3.5 h-3.5" />
+                              <span>Kunjungi Website</span>
+                            </a>
+
+                            <span className="text-[11px] text-slate-500 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-slate-200 transition-colors inline-flex items-center gap-1">
+                              Detail <ArrowUpRight className="w-3.5 h-3.5" />
                             </span>
-                            <span className="w-2 h-2 rounded-full bg-emerald-400 shrink-0" title="Online" />
-                          </div>
-
-                          <div className="relative aspect-[16/10] overflow-hidden bg-slate-900">
-                            {isNear && (
-                              <img
-                                src={project.image}
-                                alt={project.title}
-                                width="960"
-                                height="600"
-                                decoding="async"
-                                className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
-                              />
-                            )}
-                          </div>
-                        </div>
-
-                    <div className="px-1 space-y-1.5 sm:space-y-2">
-                      <p className="text-[11px] font-medium text-sky-400">{project.subtitle}</p>
-                      <h3 className="font-display text-base sm:text-lg font-bold text-white group-hover:text-sky-300 transition-colors leading-snug">
-                        {project.title}
-                      </h3>
-                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                        {project.summary}
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="px-1 pt-4 mt-5 border-t border-white/[0.07] space-y-3.5">
-                    <div className="flex flex-wrap gap-1.5">
-                      {project.tech.slice(0, 4).map((t) => (
-                        <span
-                          key={t}
-                          className="px-2.5 py-0.5 rounded-md bg-white/[0.04] border border-white/[0.08] text-[11px] text-slate-300"
-                        >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-between gap-2 pt-1">
-                      <a
-                        href={project.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-sky-400/15 hover:bg-sky-400 text-sky-300 hover:text-slate-950 border border-sky-400/30 text-xs font-semibold transition-all"
-                      >
-                        <ExternalLink className="w-3.5 h-3.5" />
-                        <span>Kunjungi Website</span>
-                      </a>
-
-                      <span className="text-[11px] text-slate-400 group-hover:text-slate-200 transition-colors inline-flex items-center gap-1">
-                        Detail <ArrowUpRight className="w-3.5 h-3.5" />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </SpotlightCard>
-            ))}
-          </div>
-
-          {/* PART 2: PROYEK AKHIR & PROYEK MATA KULIAH */}
-          <div className="mt-16 sm:mt-20 pt-14 sm:pt-16 border-t border-white/[0.06]">
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8 sm:mb-10">
-              <div className="space-y-2">
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-400">
-                  <Layers className="w-3.5 h-3.5" />
-                  <span>Tugas Akhir &amp; Eksplorasi Perkuliahan</span>
-                </span>
-                <h3 className="font-display text-2xl sm:text-3xl font-bold text-white tracking-tight">
-                  Proyek Akhir &amp; Proyek Mata Kuliah
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-400 max-w-xl">
-                  Sistem yang dibangun sebagai Proyek Akhir kelulusan serta proyek mata kuliah (pengerjaan mandiri maupun tim).
-                </p>
-              </div>
-
-              {/* Scrollable Category Filter Pills on Mobile */}
-              <div className="flex overflow-x-auto max-w-full gap-1.5 bg-white/[0.03] p-1.5 rounded-full border border-white/[0.08] self-start">
-                {categories.map((cat) => (
-                  <button
-                    key={cat}
-                    onClick={() => setActiveCategory(cat)}
-                    className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
-                      activeCategory === cat
-                        ? 'bg-white text-slate-950 shadow-sm'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
-              {filteredAcademicProjects.map((project) => {
-                const ProjectIcon = project.Icon;
-                return (
-                  <SpotlightCard
-                    key={project.id}
-                    onClick={() => setSelectedProject(project)}
-                    className="cursor-pointer group p-5 sm:p-6 flex flex-col justify-between"
-                  >
-                    <div>
-                      <div className="flex items-start justify-between gap-3 mb-4 sm:mb-5">
-                        <div
-                          className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl border flex items-center justify-center shrink-0 ${project.accent}`}
-                        >
-                          <ProjectIcon className="w-5 h-5" />
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <span className="px-2.5 sm:px-3 py-1 rounded-full bg-white/[0.04] border border-white/[0.09] text-[10px] sm:text-[11px] font-medium text-slate-300">
-                            {project.badge}
-                          </span>
-                          <div className="w-8 h-8 rounded-full bg-white/[0.05] group-hover:bg-sky-400 group-hover:text-slate-950 flex items-center justify-center text-slate-300 shrink-0 transition-all">
-                            <ArrowUpRight className="w-4 h-4" />
                           </div>
                         </div>
                       </div>
+                    </SpotlightCard>
+                  </ScrollReveal>
+                ))}
+              </div>
 
-                      <p className="text-xs font-medium text-sky-400 mb-1">{project.org}</p>
-                      <h4 className="font-display text-base sm:text-xl font-bold text-white group-hover:text-sky-300 transition-colors">
-                        {project.title}
-                      </h4>
-                      <p className="text-xs sm:text-sm text-slate-400 leading-relaxed mt-2">
-                        {project.summary}
-                      </p>
-                    </div>
+              {/* PART 2: PROYEK AKHIR & PROYEK MATA KULIAH */}
+              <div className="mt-16 sm:mt-20 pt-14 sm:pt-16 border-t border-slate-200/80 dark:border-white/[0.06]">
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8 sm:mb-10">
+                  <ScrollReveal direction="left" className="space-y-2">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                      <Layers className="w-3.5 h-3.5" />
+                      <span>Tugas Akhir &amp; Eksplorasi Perkuliahan</span>
+                    </span>
+                    <h3 className="font-display text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white tracking-tight">
+                      Proyek Akhir &amp; Proyek Mata Kuliah
+                    </h3>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 max-w-xl">
+                      Sistem yang dibangun sebagai Proyek Akhir kelulusan serta proyek mata kuliah
+                      (pengerjaan mandiri maupun tim).
+                    </p>
+                  </ScrollReveal>
 
-                    <div className="flex flex-wrap gap-1.5 pt-4 mt-5 border-t border-white/[0.07]">
-                      {project.tech.map((t) => (
-                        <span
-                          key={t}
-                          className="px-2.5 py-1 rounded-lg bg-white/[0.04] border border-white/[0.07] text-[11px] text-slate-300"
+                  {/* Scrollable Category Filter Pills */}
+                  <ScrollReveal
+                    direction="right"
+                    delay={80}
+                    className="flex overflow-x-auto max-w-full gap-1.5 bg-slate-200/60 dark:bg-white/[0.03] p-1.5 rounded-full border border-slate-200 dark:border-white/[0.08] self-start"
+                  >
+                    {categories.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setActiveCategory(cat)}
+                        className={`px-3.5 sm:px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                          activeCategory === cat
+                            ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-950 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </ScrollReveal>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                  {filteredAcademicProjects.map((project, idx) => {
+                    const ProjectIcon = project.Icon;
+                    return (
+                      <ScrollReveal
+                        key={project.id}
+                        direction={idx % 2 === 0 ? 'left' : 'right'}
+                        delay={(idx % 2) * 100}
+                        className="h-full"
+                      >
+                        <SpotlightCard
+                          spotlightColor={defaultSpotlight}
+                          onClick={() => setSelectedProject(project)}
+                          className="cursor-pointer group p-5 sm:p-6 flex flex-col justify-between h-full"
                         >
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  </SpotlightCard>
-                );
-              })}
-            </div>
-          </div>
+                          <div>
+                            <div className="flex items-start justify-between gap-3 mb-4 sm:mb-5">
+                              <div
+                                className={`w-11 h-11 sm:w-12 sm:h-12 rounded-2xl border flex items-center justify-center shrink-0 ${project.accent}`}
+                              >
+                                <ProjectIcon className="w-5 h-5" />
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <span className="px-2.5 sm:px-3 py-1 rounded-full bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.09] text-[10px] sm:text-[11px] font-medium text-slate-700 dark:text-slate-300">
+                                  {project.badge}
+                                </span>
+                                <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/[0.05] group-hover:bg-sky-500 dark:group-hover:bg-sky-400 group-hover:text-white dark:group-hover:text-slate-950 flex items-center justify-center text-slate-600 dark:text-slate-300 shrink-0 transition-all">
+                                  <ArrowUpRight className="w-4 h-4" />
+                                </div>
+                              </div>
+                            </div>
+
+                            <p className="text-xs font-medium text-sky-600 dark:text-sky-400 mb-1">
+                              {project.org}
+                            </p>
+                            <h4 className="font-display text-base sm:text-xl font-bold text-slate-900 dark:text-white group-hover:text-sky-600 dark:group-hover:text-sky-300 transition-colors">
+                              {project.title}
+                            </h4>
+                            <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 leading-relaxed mt-2">
+                              {project.summary}
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap gap-1.5 pt-4 mt-5 border-t border-slate-200/80 dark:border-white/[0.07]">
+                            {project.tech.map((t) => (
+                              <span
+                                key={t}
+                                className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/[0.04] border border-slate-200/90 dark:border-white/[0.07] text-[11px] text-slate-700 dark:text-slate-300"
+                              >
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        </SpotlightCard>
+                      </ScrollReveal>
+                    );
+                  })}
+                </div>
+              </div>
             </>
           )}
-        </RevealSection>
+        </ObservedSection>
 
         {/* PENGALAMAN KERJA, PENCAPAIAN, PENDIDIKAN, SERTIFIKASI & PELATIHAN */}
-        <RevealSection
+        <section
           id="pengalaman"
-          className="py-16 sm:py-20 border-t border-white/[0.06]"
+          className="py-16 sm:py-20 border-t border-slate-200/80 dark:border-white/[0.06]"
         >
-          <div className="mb-8 sm:mb-10 space-y-2">
-            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-400">
+          <ScrollReveal direction="up" className="mb-8 sm:mb-10 space-y-2">
+            <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-600 dark:text-sky-400">
               <Briefcase className="w-3.5 h-3.5" />
               <span>Pengalaman &amp; Latar Belakang</span>
             </span>
-            <h2 className="font-display text-2xl sm:text-4xl font-bold text-white tracking-tight">
+            <h2 className="font-display text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight">
               Pengalaman, Pencapaian &amp; Kredensial
             </h2>
-          </div>
+          </ScrollReveal>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
             {/* Left 7 Cols: Internship, Scholarship Achievement & Education */}
             <div className="lg:col-span-7 space-y-5 sm:space-y-6">
               {/* 1. Pengalaman Kerja */}
-              <SpotlightCard className="p-5 sm:p-8">
-                <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
-                  <div className="flex items-start gap-3.5">
-                    <div className="w-11 h-11 rounded-2xl bg-sky-400/10 border border-sky-400/25 flex items-center justify-center text-sky-400 shrink-0">
-                      <Briefcase className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-display text-lg sm:text-xl font-bold text-white">
-                        Web Developer Intern
-                      </h3>
-                      <p className="text-xs sm:text-sm font-medium text-sky-400">
-                        Balai Bahasa Provinsi Riau — Kota Pekanbaru, Riau
-                      </p>
-                    </div>
-                  </div>
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/[0.05] border border-white/[0.08] text-xs text-slate-300">
-                    <Calendar className="w-3.5 h-3.5 text-sky-400" />
-                    Sep 2025 – Jan 2026
-                  </span>
-                </div>
-
-                <p className="text-xs text-slate-400 mb-4">
-                  Mengembangkan tiga website layanan untuk Balai Bahasa Provinsi Riau menggunakan{' '}
-                  <strong className="text-slate-200">Laravel &amp; Tailwind CSS</strong>:
-                </p>
-
-                <ul className="space-y-3.5 text-xs sm:text-sm text-slate-300 leading-relaxed pt-4 border-t border-white/[0.07]">
-                  <li className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                    <div>
-                      <span>
-                        <strong className="text-white">PPID (Layanan Informasi Publik):</strong>{' '}
-                        Membangun website keterbukaan informasi publik dan pengajuan permohonan daring.
-                      </span>{' '}
-                      <a
-                        href="https://ppidbbpriau.kemendikdasmen.go.id/"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-medium text-sky-400 hover:text-sky-300 underline underline-offset-4 ml-1 break-all"
-                      >
-                        ppidbbpriau.kemendikdasmen.go.id <ArrowUpRight className="w-3 h-3 shrink-0" />
-                      </a>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                    <div>
-                      <span>
-                        <strong className="text-white">SAPA (Absensi Tamu Digital):</strong>{' '}
-                        Mengembangkan website pencatatan kunjungan dan aspirasi layanan masyarakat.
-                      </span>{' '}
-                      <a
-                        href="https://ppidbbpriau.kemendikdasmen.go.id/portal/tamu"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-medium text-sky-400 hover:text-sky-300 underline underline-offset-4 ml-1"
-                      >
-                        /portal/tamu <ArrowUpRight className="w-3 h-3" />
-                      </a>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                    <div>
-                      <span>
-                        <strong className="text-white">SKM (Survei Kepuasan Masyarakat):</strong>{' '}
-                        Mengembangkan website survei kepuasan layanan sesuai PermenPANRB Nomor 14 Tahun 2017.
-                      </span>{' '}
-                      <a
-                        href="https://ppidbbpriau.kemendikdasmen.go.id/portal/survei"
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-medium text-sky-400 hover:text-sky-300 underline underline-offset-4 ml-1"
-                      >
-                        /portal/survei <ArrowUpRight className="w-3 h-3" />
-                      </a>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <CheckCircle2 className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                    <span>
-                      Membantu pegawai sesuai kebutuhan sehari-hari di lingkungan kerja Balai Bahasa Provinsi Riau.
-                    </span>
-                  </li>
-                </ul>
-
-                <div className="pt-5 mt-5 border-t border-white/[0.07]">
-                  <button
-                    onClick={() => openDocPreview('magang')}
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-400/12 hover:bg-sky-400/20 border border-sky-400/30 text-xs font-medium text-sky-300 transition-colors"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    <span>Preview Sertifikat Magang</span>
-                  </button>
-                </div>
-              </SpotlightCard>
-
-              {/* 2. Pencapaian / Beasiswa Resmi */}
-              <SpotlightCard
-                spotlightColor="rgba(251, 191, 36, 0.12)"
-                className="p-5 sm:p-8"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
-                  <div className="flex items-center gap-3.5">
-                    <div className="w-11 h-11 rounded-2xl bg-amber-400/10 border border-amber-400/25 flex items-center justify-center text-amber-300 shrink-0">
-                      <Award className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="font-display text-lg font-bold text-white">Pencapaian</h3>
-                      <p className="text-xs text-slate-400">Beasiswa Pendidikan</p>
-                    </div>
-                  </div>
-                  <span className="px-3 py-1 rounded-full bg-amber-400/10 border border-amber-400/25 text-xs font-mono text-amber-300">
-                    2022
-                  </span>
-                </div>
-
-                <div className="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/[0.07] space-y-2">
-                  <h4 className="font-display font-semibold text-sm sm:text-base text-white leading-snug">
-                    Penerima Beasiswa Pendidikan Program Kerja Sama Pemerintah Kabupaten Rokan Hilir
-                  </h4>
-                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                    Lulus seleksi penerimaan mahasiswa baru jalur beasiswa pendidikan program kerja sama{' '}
-                    <strong className="text-white font-medium">Pemerintah Kabupaten Rokan Hilir</strong> dengan{' '}
-                    <strong className="text-white font-medium">Politeknik Caltex Riau</strong>{' '}
-                    <span className="text-sky-300 font-mono text-[11px] sm:text-xs">(SK Direktur No. 0072/KEP-DIR/PCR/2022)</span>{' '}
-                    untuk menempuh pendidikan D4 Teknik Informatika.
-                  </p>
-                </div>
-              </SpotlightCard>
-
-              {/* 3. Pendidikan Formal */}
-              <SpotlightCard className="p-5 sm:p-8">
-                <div className="flex items-center gap-3.5 mb-5">
-                  <div className="w-11 h-11 rounded-2xl bg-indigo-400/10 border border-indigo-400/25 flex items-center justify-center text-indigo-400 shrink-0">
-                    <GraduationCap className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-white">Pendidikan Formal</h3>
-                    <p className="text-xs text-slate-400">Riwayat Akademik</p>
-                  </div>
-                </div>
-
-                <div className="divide-y divide-white/[0.07]">
-                  <div className="pb-4 space-y-2">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <ScrollReveal direction="left">
+                <SpotlightCard spotlightColor={defaultSpotlight} className="p-5 sm:p-8">
+                  <div className="flex flex-wrap items-start justify-between gap-3 mb-5">
+                    <div className="flex items-start gap-3.5">
+                      <div className="w-11 h-11 rounded-2xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
+                        <Briefcase className="w-5 h-5" />
+                      </div>
                       <div>
-                        <h4 className="font-semibold text-sm sm:text-base text-white">
-                          Politeknik Caltex Riau — Kota Pekanbaru, Riau
-                        </h4>
-                        <p className="text-xs sm:text-sm text-slate-400 mt-0.5">
-                          D4 Teknik Informatika ·{' '}
-                          <span className="text-sky-400 font-semibold">IPK 3.70 / 4.00</span>
+                        <h3 className="font-display text-lg sm:text-xl font-bold text-slate-900 dark:text-white">
+                          Web Developer Intern
+                        </h3>
+                        <p className="text-xs sm:text-sm font-medium text-sky-600 dark:text-sky-400">
+                          Balai Bahasa Provinsi Riau — Kota Pekanbaru, Riau
                         </p>
                       </div>
-                      <span className="text-xs font-mono text-slate-400 bg-white/[0.04] px-3 py-1 rounded-full border border-white/[0.07] self-start sm:self-center">
-                        2022 – 2026
+                    </div>
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/[0.08] text-xs text-slate-700 dark:text-slate-300">
+                      <Calendar className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                      Sep 2025 – Jan 2026
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-4">
+                    Mengembangkan tiga website layanan untuk Balai Bahasa Provinsi Riau menggunakan{' '}
+                    <strong className="text-slate-900 dark:text-slate-200">
+                      Laravel &amp; Tailwind CSS
+                    </strong>
+                    :
+                  </p>
+
+                  <ul className="space-y-3.5 text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed pt-4 border-t border-slate-200/80 dark:border-white/[0.07]">
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span>
+                          <strong className="text-slate-900 dark:text-white">
+                            PPID (Layanan Informasi Publik):
+                          </strong>{' '}
+                          Membangun website keterbukaan informasi publik dan pengajuan permohonan
+                          daring.
+                        </span>{' '}
+                        <a
+                          href="https://ppidbbpriau.kemendikdasmen.go.id/"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 underline underline-offset-4 ml-1 break-all"
+                        >
+                          ppidbbpriau.kemendikdasmen.go.id{' '}
+                          <ArrowUpRight className="w-3 h-3 shrink-0" />
+                        </a>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span>
+                          <strong className="text-slate-900 dark:text-white">
+                            SAPA (Absensi Tamu Digital):
+                          </strong>{' '}
+                          Mengembangkan website pencatatan kunjungan dan aspirasi layanan masyarakat.
+                        </span>{' '}
+                        <a
+                          href="https://ppidbbpriau.kemendikdasmen.go.id/portal/tamu"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 underline underline-offset-4 ml-1"
+                        >
+                          /portal/tamu <ArrowUpRight className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span>
+                          <strong className="text-slate-900 dark:text-white">
+                            SKM (Survei Kepuasan Masyarakat):
+                          </strong>{' '}
+                          Mengembangkan website survei kepuasan layanan sesuai PermenPANRB Nomor 14
+                          Tahun 2017.
+                        </span>{' '}
+                        <a
+                          href="https://ppidbbpriau.kemendikdasmen.go.id/portal/survei"
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-sky-600 dark:text-sky-400 hover:text-sky-500 dark:hover:text-sky-300 underline underline-offset-4 ml-1"
+                        >
+                          /portal/survei <ArrowUpRight className="w-3 h-3" />
+                        </a>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-2.5">
+                      <CheckCircle2 className="w-4 h-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+                      <span>
+                        Membantu pegawai sesuai kebutuhan sehari-hari di lingkungan kerja Balai
+                        Bahasa Provinsi Riau.
+                      </span>
+                    </li>
+                  </ul>
+
+                  <div className="pt-5 mt-5 border-t border-slate-200/80 dark:border-white/[0.07]">
+                    <button
+                      onClick={() => openDocPreview('magang')}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-sky-500/10 hover:bg-sky-500/20 dark:bg-sky-400/12 dark:hover:bg-sky-400/20 border border-sky-500/30 dark:border-sky-400/30 text-xs font-medium text-sky-700 dark:text-sky-300 transition-colors"
+                    >
+                      <Eye className="w-3.5 h-3.5" />
+                      <span>Preview Sertifikat Magang</span>
+                    </button>
+                  </div>
+                </SpotlightCard>
+              </ScrollReveal>
+
+              {/* 2. Pencapaian / Beasiswa Penuh 2022–2026 */}
+              <ScrollReveal direction="left" delay={100}>
+                <SpotlightCard
+                  spotlightColor="rgba(245, 158, 11, 0.12)"
+                  className="p-5 sm:p-8"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3 mb-4">
+                    <div className="flex items-center gap-3.5">
+                      <div className="w-11 h-11 rounded-2xl bg-amber-500/10 border border-amber-500/25 flex items-center justify-center text-amber-600 dark:text-amber-300 shrink-0">
+                        <Award className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">
+                          Pencapaian
+                        </h3>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          Beasiswa Pendidikan Penuh (4 Tahun)
+                        </p>
+                      </div>
+                    </div>
+                    <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-xs font-mono font-medium text-amber-700 dark:text-amber-300">
+                      2022 – 2026
+                    </span>
+                  </div>
+
+                  <div className="p-4 sm:p-5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/[0.07] space-y-2">
+                    <h4 className="font-display font-semibold text-sm sm:text-base text-slate-900 dark:text-white leading-snug">
+                      Penerima Beasiswa Pendidikan Program Kerja Sama Pemerintah Kabupaten Rokan Hilir
+                    </h4>
+                    <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                      Penerima beasiswa penuh (
+                      <strong className="text-slate-900 dark:text-white font-semibold">
+                        Full UKT dan uang saku selama 4 tahun masa studi
+                      </strong>
+                      ) melalui jalur seleksi program kerja sama{' '}
+                      <strong className="text-slate-900 dark:text-white font-semibold">
+                        Pemerintah Kabupaten Rokan Hilir
+                      </strong>{' '}
+                      dengan{' '}
+                      <strong className="text-slate-900 dark:text-white font-semibold">
+                        Politeknik Caltex Riau
+                      </strong>{' '}
+                      <span className="text-sky-700 dark:text-sky-300 font-mono text-[11px] sm:text-xs">
+                        (SK Direktur No. 0072/KEP-DIR/PCR/2022)
+                      </span>{' '}
+                      untuk menempuh pendidikan D4 Teknik Informatika.
+                    </p>
+                  </div>
+                </SpotlightCard>
+              </ScrollReveal>
+
+              {/* 3. Pendidikan Formal */}
+              <ScrollReveal direction="left" delay={180}>
+                <SpotlightCard spotlightColor={defaultSpotlight} className="p-5 sm:p-8">
+                  <div className="flex items-center gap-3.5 mb-5">
+                    <div className="w-11 h-11 rounded-2xl bg-indigo-500/10 border border-indigo-500/25 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+                      <GraduationCap className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">
+                        Pendidikan Formal
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">Riwayat Akademik</p>
+                    </div>
+                  </div>
+
+                  <div className="divide-y divide-slate-200/80 dark:divide-white/[0.07]">
+                    <div className="pb-4 space-y-2">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                          <h4 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white">
+                            Politeknik Caltex Riau — Kota Pekanbaru, Riau
+                          </h4>
+                          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                            D4 Teknik Informatika ·{' '}
+                            <span className="text-sky-600 dark:text-sky-400 font-semibold">
+                              IPK 3.70 / 4.00
+                            </span>
+                          </p>
+                        </div>
+                        <span className="text-xs font-mono text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-white/[0.04] px-3 py-1 rounded-full border border-slate-200 dark:border-white/[0.07] self-start sm:self-center">
+                          2022 – 2026
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <h4 className="font-semibold text-sm sm:text-base text-slate-900 dark:text-white">
+                          Pondok Pesantren Bidayatul Hidayah — Rokan Hilir
+                        </h4>
+                        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                          SMA, Jurusan IPA
+                        </p>
+                      </div>
+                      <span className="text-xs font-mono text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-white/[0.04] px-3 py-1 rounded-full border border-slate-200 dark:border-white/[0.07] self-start sm:self-center">
+                        2019 – 2022
                       </span>
                     </div>
                   </div>
-
-                  <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <div>
-                      <h4 className="font-semibold text-sm sm:text-base text-white">
-                        Pondok Pesantren Bidayatul Hidayah — Rokan Hilir
-                      </h4>
-                      <p className="text-xs sm:text-sm text-slate-400 mt-0.5">SMA, Jurusan IPA</p>
-                    </div>
-                    <span className="text-xs font-mono text-slate-400 bg-white/[0.04] px-3 py-1 rounded-full border border-white/[0.07] self-start sm:self-center">
-                      2019 – 2022
-                    </span>
-                  </div>
-                </div>
-              </SpotlightCard>
+                </SpotlightCard>
+              </ScrollReveal>
             </div>
 
             {/* Right 5 Cols: Certifications, Dicoding Trainings & Organizations */}
             <div className="lg:col-span-5 space-y-5 sm:space-y-6">
               {/* 1. Sertifikasi */}
-              <SpotlightCard
-                spotlightColor="rgba(129, 140, 248, 0.16)"
-                className="p-5 sm:p-8"
-              >
-                <div className="flex items-center gap-3.5 mb-5">
-                  <div className="w-11 h-11 rounded-2xl bg-sky-400/10 border border-sky-400/25 flex items-center justify-center text-sky-400 shrink-0">
-                    <ShieldCheck className="w-5 h-5" />
+              <ScrollReveal direction="right" delay={60}>
+                <SpotlightCard
+                  spotlightColor="rgba(99, 102, 241, 0.14)"
+                  className="p-5 sm:p-8"
+                >
+                  <div className="flex items-center gap-3.5 mb-5">
+                    <div className="w-11 h-11 rounded-2xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
+                      <ShieldCheck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">
+                        Sertifikasi
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Kompetensi &amp; Jaringan
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-white">Sertifikasi</h3>
-                    <p className="text-xs text-slate-400">Kompetensi &amp; Jaringan</p>
-                  </div>
-                </div>
 
-                <div className="space-y-3.5">
-                  <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] space-y-2.5">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h4 className="font-semibold text-sm text-white">
-                          Certificate of Competence – Programmer
-                        </h4>
-                        <p className="text-xs text-slate-400 mt-0.5">
-                          LSP Politeknik Caltex Riau (BNSP)
-                        </p>
+                  <div className="space-y-3.5">
+                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/[0.07] space-y-2.5">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h4 className="font-semibold text-sm text-slate-900 dark:text-white">
+                            Certificate of Competence – Programmer
+                          </h4>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                            LSP Politeknik Caltex Riau (BNSP)
+                          </p>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-[11px] font-medium shrink-0">
+                          Lulus 2026
+                        </span>
                       </div>
-                      <span className="px-2.5 py-0.5 rounded-lg bg-emerald-400/15 text-emerald-300 text-[11px] font-medium shrink-0">
-                        Lulus 2026
-                      </span>
+                      <p className="text-[11px] text-amber-800 dark:text-amber-300/90 bg-amber-500/10 border border-amber-500/20 rounded-lg px-2.5 py-1.5 inline-block">
+                        Dinyatakan Kompeten / Lulus · Menunggu penerbitan sertifikat fisik
+                      </p>
                     </div>
-                    <p className="text-[11px] text-amber-300/90 bg-amber-400/[0.08] border border-amber-400/20 rounded-lg px-2.5 py-1.5 inline-block">
-                      Dinyatakan Kompeten / Lulus · Menunggu penerbitan sertifikat fisik
-                    </p>
-                  </div>
 
-                  <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h4 className="font-semibold text-sm text-white">
-                          MikroTik Certified Network Associate (MTCNA)
-                        </h4>
-                        <p className="text-xs text-slate-400 mt-0.5">
-                          MikroTik · ID: 2407NA0799
-                        </p>
+                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/[0.07] space-y-3">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <h4 className="font-semibold text-sm text-slate-900 dark:text-white">
+                            MikroTik Certified Network Associate (MTCNA)
+                          </h4>
+                          <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                            MikroTik · ID: 2407NA0799
+                          </p>
+                        </div>
+                        <span className="px-2.5 py-0.5 rounded-lg bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 text-[11px] font-mono shrink-0">
+                          2024–2027
+                        </span>
                       </div>
-                      <span className="px-2.5 py-0.5 rounded-lg bg-indigo-400/15 text-indigo-300 text-[11px] font-mono shrink-0">
-                        2024–2027
-                      </span>
+
+                      <button
+                        onClick={() => openDocPreview('mtcna')}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-white/[0.05] dark:hover:bg-white/[0.1] border border-slate-200 dark:border-white/[0.1] text-xs font-medium text-sky-700 dark:text-sky-300 transition-colors"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Preview Sertifikat</span>
+                      </button>
+                    </div>
+                  </div>
+                </SpotlightCard>
+              </ScrollReveal>
+
+              {/* 2. Pelatihan (Dicoding Indonesia) */}
+              <ScrollReveal direction="right" delay={140}>
+                <SpotlightCard spotlightColor={defaultSpotlight} className="p-5 sm:p-8">
+                  <div className="flex items-center gap-3.5 mb-5">
+                    <div className="w-11 h-11 rounded-2xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                      <BookOpen className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">
+                        Pelatihan
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Sertifikat Kelulusan Dicoding
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3.5">
+                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/[0.07] space-y-2.5">
+                      <h4 className="font-semibold text-sm text-slate-900 dark:text-white leading-snug">
+                        Prompt Engineering untuk Software Developer
+                      </h4>
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="text-emerald-700 dark:text-emerald-300 font-medium">
+                          Dicoding Indonesia
+                        </span>
+                        <span className="font-mono text-[11px]">Agu – Sep 2026</span>
+                      </div>
+                      <button
+                        onClick={() => openDocPreview('promptEng')}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-white/[0.05] dark:hover:bg-white/[0.1] border border-slate-200 dark:border-white/[0.1] text-xs font-medium text-emerald-700 dark:text-emerald-300 transition-colors"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Preview Sertifikat</span>
+                      </button>
                     </div>
 
-                    <button
-                      onClick={() => openDocPreview('mtcna')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-xs font-medium text-sky-300 transition-colors"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Preview Sertifikat</span>
-                    </button>
-                  </div>
-                </div>
-              </SpotlightCard>
-
-              {/* 2. Pelatihan (Dicoding Indonesia with Official Previews) */}
-              <SpotlightCard className="p-5 sm:p-8">
-                <div className="flex items-center gap-3.5 mb-5">
-                  <div className="w-11 h-11 rounded-2xl bg-emerald-400/10 border border-emerald-400/25 flex items-center justify-center text-emerald-400 shrink-0">
-                    <BookOpen className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-white">Pelatihan</h3>
-                    <p className="text-xs text-slate-400">Sertifikat Kelulusan Dicoding</p>
-                  </div>
-                </div>
-
-                <div className="space-y-3.5">
-                  <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] space-y-2.5">
-                    <h4 className="font-semibold text-sm text-white leading-snug">
-                      Prompt Engineering untuk Software Developer
-                    </h4>
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
-                      <span className="text-emerald-300 font-medium">Dicoding Indonesia</span>
-                      <span className="font-mono text-[11px]">Agu – Sep 2026</span>
+                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200/90 dark:border-white/[0.07] space-y-2.5">
+                      <h4 className="font-semibold text-sm text-slate-900 dark:text-white leading-snug">
+                        Belajar Dasar AI
+                      </h4>
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="text-emerald-700 dark:text-emerald-300 font-medium">
+                          Dicoding Indonesia
+                        </span>
+                        <span className="font-mono text-[11px]">Agu – Sep 2026</span>
+                      </div>
+                      <button
+                        onClick={() => openDocPreview('dasarAi')}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white hover:bg-slate-100 dark:bg-white/[0.05] dark:hover:bg-white/[0.1] border border-slate-200 dark:border-white/[0.1] text-xs font-medium text-emerald-700 dark:text-emerald-300 transition-colors"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Preview Sertifikat</span>
+                      </button>
                     </div>
-                    <button
-                      onClick={() => openDocPreview('promptEng')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-xs font-medium text-emerald-300 transition-colors"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Preview Sertifikat</span>
-                    </button>
                   </div>
-
-                  <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/[0.07] space-y-2.5">
-                    <h4 className="font-semibold text-sm text-white leading-snug">
-                      Belajar Dasar AI
-                    </h4>
-                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-400">
-                      <span className="text-emerald-300 font-medium">Dicoding Indonesia</span>
-                      <span className="font-mono text-[11px]">Agu – Sep 2026</span>
-                    </div>
-                    <button
-                      onClick={() => openDocPreview('dasarAi')}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.1] text-xs font-medium text-emerald-300 transition-colors"
-                    >
-                      <Eye className="w-3.5 h-3.5" />
-                      <span>Preview Sertifikat</span>
-                    </button>
-                  </div>
-                </div>
-              </SpotlightCard>
+                </SpotlightCard>
+              </ScrollReveal>
 
               {/* 3. Organisasi */}
-              <SpotlightCard className="p-5 sm:p-8">
-                <div className="flex items-center gap-3.5 mb-5">
-                  <div className="w-11 h-11 rounded-2xl bg-white/[0.06] border border-white/[0.1] flex items-center justify-center text-slate-200 shrink-0">
-                    <Users className="w-5 h-5" />
+              <ScrollReveal direction="right" delay={220}>
+                <SpotlightCard spotlightColor={defaultSpotlight} className="p-5 sm:p-8">
+                  <div className="flex items-center gap-3.5 mb-5">
+                    <div className="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.1] flex items-center justify-center text-slate-700 dark:text-slate-200 shrink-0">
+                      <Users className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="font-display text-lg font-bold text-slate-900 dark:text-white">
+                        Organisasi
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        Pengalaman Kepanitiaan &amp; Himpunan
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-white">Organisasi</h3>
-                    <p className="text-xs text-slate-400">Pengalaman Kepanitiaan &amp; Himpunan</p>
-                  </div>
-                </div>
 
-                <div className="space-y-3.5 text-xs sm:text-sm">
-                  <div className="pb-3.5 border-b border-white/[0.07]">
-                    <p className="font-semibold text-white">
-                      Information Technology Student Association (ITSA)
-                    </p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Anggota Himpunan Mahasiswa (Agu 2023 – Agu 2026)
-                    </p>
+                  <div className="space-y-3.5 text-xs sm:text-sm">
+                    <div className="pb-3.5 border-b border-slate-200/80 dark:border-white/[0.07]">
+                      <p className="font-semibold text-slate-900 dark:text-white">
+                        Information Technology Student Association (ITSA)
+                      </p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                        Anggota Himpunan Mahasiswa (Agu 2023 – Agu 2026)
+                      </p>
+                    </div>
+                    <div className="pb-3.5 border-b border-slate-200/80 dark:border-white/[0.07]">
+                      <p className="font-semibold text-slate-900 dark:text-white">UKM PCR-Rohil</p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">
+                        Anggota Divisi Pendidikan &amp; Kaderisasi; Koordinator Dokumentasi (Sharing
+                        Session 5) &amp; Koordinator Perlengkapan (2nd Anniversary PCR-Rohil) (Nov
+                        2022 – Jul 2023)
+                      </p>
+                    </div>
+                    <div>
+                      <p className="font-semibold text-slate-900 dark:text-white">
+                        Unit Kegiatan Mahasiswa Islam (UKMI)
+                      </p>
+                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">
+                        Anggota Divisi Konsumsi Muktamar XXII (Juli 2024)
+                      </p>
+                    </div>
                   </div>
-                  <div className="pb-3.5 border-b border-white/[0.07]">
-                    <p className="font-semibold text-white">UKM PCR-Rohil</p>
-                    <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
-                      Anggota Divisi Pendidikan &amp; Kaderisasi; Koordinator Dokumentasi (Sharing Session 5) &amp; Koordinator Perlengkapan (2nd Anniversary PCR-Rohil) (Nov 2022 – Jul 2023)
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-white">Unit Kegiatan Mahasiswa Islam (UKMI)</p>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      Anggota Divisi Konsumsi Muktamar XXII (Juli 2024)
-                    </p>
-                  </div>
-                </div>
-              </SpotlightCard>
+                </SpotlightCard>
+              </ScrollReveal>
             </div>
           </div>
-        </RevealSection>
+        </section>
 
-        {/* CONTACT & SOCIAL MEDIA SECTION */}
-        <RevealSection
+        {/* CONTACT & SOCIAL MEDIA SECTION (Address Removed per User Request) */}
+        <section
           id="kontak"
-          className="py-16 sm:py-20 border-t border-white/[0.06]"
+          className="py-16 sm:py-20 border-t border-slate-200/80 dark:border-white/[0.06]"
         >
-          <SpotlightCard className="p-6 sm:p-10 lg:p-12">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              <div className="lg:col-span-5 space-y-4">
-                <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-400">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  <span>Hubungi &amp; Media Sosial</span>
-                </span>
-                <h2 className="font-display text-2xl sm:text-4xl font-bold text-white tracking-tight leading-tight">
-                  Siap Berkontribusi sebagai Web Developer / Software Engineer.
-                </h2>
-                <p className="text-xs sm:text-base text-slate-400 leading-relaxed">
-                  Terbiasa bekerja dalam tim, aktif berorganisasi, dan cepat belajar. Silakan hubungi saya melalui kontak langsung maupun media sosial berikut.
-                </p>
-                <div className="flex items-start gap-2 text-xs text-slate-400 pt-1">
-                  <MapPin className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
-                  <span>Kota Pekanbaru &amp; Jl. Lintas Bagansiapiapi, Rokan Hilir, Riau</span>
-                </div>
-              </div>
-
-              <div className="lg:col-span-7 space-y-4">
-                {/* Direct Email & WhatsApp */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <button
-                    onClick={copyEmail}
-                    className="p-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.09] flex items-center justify-between gap-3 transition-all text-left group"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-xl bg-sky-400/10 border border-sky-400/25 flex items-center justify-center text-sky-400 shrink-0">
-                        <Mail className="w-4 h-4" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-[11px] text-slate-400">Email (Klik salin)</p>
-                        <p className="text-xs sm:text-sm font-semibold text-white truncate">
-                          {email}
-                        </p>
-                      </div>
-                    </div>
-                    {copied ? (
-                      <Check className="w-4 h-4 text-emerald-400 shrink-0" />
-                    ) : (
-                      <Copy className="w-4 h-4 text-slate-400 group-hover:text-white shrink-0" />
-                    )}
-                  </button>
-
-                  <a
-                    href="https://wa.me/6281228141650"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-4 rounded-2xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.09] flex items-center justify-between gap-3 transition-all group"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-emerald-400/10 border border-emerald-400/25 flex items-center justify-center text-emerald-400 shrink-0">
-                        <Phone className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="text-[11px] text-slate-400">WhatsApp</p>
-                        <p className="text-xs sm:text-sm font-semibold text-white">0812-2814-1650</p>
-                      </div>
-                    </div>
-                    <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-white shrink-0" />
-                  </a>
+          <ScrollReveal direction="scale">
+            <SpotlightCard spotlightColor={defaultSpotlight} className="p-6 sm:p-10 lg:p-12">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <div className="lg:col-span-5 space-y-4">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-medium text-sky-600 dark:text-sky-400">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>Hubungi &amp; Media Sosial</span>
+                  </span>
+                  <h2 className="font-display text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white tracking-tight leading-tight">
+                    Mari Terhubung untuk Kolaborasi &amp; Kesempatan Kerja.
+                  </h2>
+                  <p className="text-xs sm:text-base text-slate-600 dark:text-slate-400 leading-relaxed">
+                    Terbiasa bekerja dalam tim, aktif berorganisasi, dan cepat belajar. Silakan
+                    hubungi saya melalui kontak langsung maupun media sosial berikut.
+                  </p>
                 </div>
 
-                {/* All Social Media Cards */}
-                <div className="pt-2">
-                  <p className="text-xs font-medium text-slate-400 mb-2.5">Media Sosial Resmi</p>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-                    {SOCIAL_LINKS.map(({ name, handle, url, accent, Icon }) => (
-                      <a
-                        key={name}
-                        href={url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={`p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/[0.08] flex items-center gap-2.5 text-slate-300 transition-all ${accent}`}
-                      >
-                        <div className="w-8 h-8 rounded-xl bg-white/[0.05] flex items-center justify-center shrink-0">
-                          <Icon className="w-4 h-4" />
+                <div className="lg:col-span-7 space-y-4">
+                  {/* Direct Email & WhatsApp */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      onClick={copyEmail}
+                      className="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.09] flex items-center justify-between gap-3 transition-all text-left group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
+                          <Mail className="w-4 h-4" />
                         </div>
                         <div className="min-w-0">
-                          <p className="text-xs font-semibold text-white leading-tight">{name}</p>
-                          <p className="text-[11px] text-slate-400 truncate">{handle}</p>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                            Email (Klik salin)
+                          </p>
+                          <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white truncate">
+                            {email}
+                          </p>
                         </div>
-                      </a>
-                    ))}
+                      </div>
+                      {copied ? (
+                        <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                      ) : (
+                        <Copy className="w-4 h-4 text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white shrink-0" />
+                      )}
+                    </button>
+
+                    <a
+                      href="https://wa.me/6281228141650"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="p-4 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] border border-slate-200 dark:border-white/[0.09] flex items-center justify-between gap-3 transition-all group"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/25 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                          <Phone className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400">WhatsApp</p>
+                          <p className="text-xs sm:text-sm font-semibold text-slate-900 dark:text-white">
+                            0812-2814-1650
+                          </p>
+                        </div>
+                      </div>
+                      <ArrowUpRight className="w-4 h-4 text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white shrink-0" />
+                    </a>
+                  </div>
+
+                  {/* All Social Media Cards */}
+                  <div className="pt-2">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2.5">
+                      Media Sosial Resmi
+                    </p>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                      {SOCIAL_LINKS.map(({ name, handle, url, accent, Icon }) => (
+                        <a
+                          key={name}
+                          href={url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={`p-3 rounded-2xl bg-slate-50 hover:bg-slate-100 dark:bg-white/[0.03] dark:hover:bg-white/[0.07] border border-slate-200 dark:border-white/[0.08] flex items-center gap-2.5 text-slate-700 dark:text-slate-300 transition-all ${accent}`}
+                        >
+                          <div className="w-8 h-8 rounded-xl bg-white dark:bg-white/[0.05] border border-slate-200/70 dark:border-transparent flex items-center justify-center shrink-0">
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-xs font-semibold text-slate-900 dark:text-white leading-tight">
+                              {name}
+                            </p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
+                              {handle}
+                            </p>
+                          </div>
+                        </a>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </SpotlightCard>
-        </RevealSection>
+            </SpotlightCard>
+          </ScrollReveal>
+        </section>
       </main>
 
       {/* Project Lightbox Detail Modal */}
       {selectedProject && (
         <div
           onClick={() => setSelectedProject(null)}
-          className="animate-modal-backdrop fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4"
+          className="animate-modal-backdrop fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/75 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="animate-modal-panel w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-[#0D111A] border border-white/15 p-5 sm:p-7 space-y-5 shadow-2xl"
+            className="animate-modal-panel w-full max-w-2xl max-h-[88vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl bg-white dark:bg-[#0D111A] border border-slate-200 dark:border-white/15 p-5 sm:p-7 space-y-5 shadow-2xl"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-medium text-sky-400">{selectedProject.org}</p>
-                <h3 className="font-display text-lg sm:text-2xl font-bold text-white mt-0.5">
+                <p className="text-xs font-medium text-sky-600 dark:text-sky-400">
+                  {selectedProject.org}
+                </p>
+                <h3 className="font-display text-lg sm:text-2xl font-bold text-slate-900 dark:text-white mt-0.5">
                   {selectedProject.title}
                 </h3>
               </div>
               <button
                 onClick={() => setSelectedProject(null)}
                 aria-label="Tutup detail proyek"
-                className="p-2 rounded-full bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-colors"
+                className="p-2 rounded-full bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.06] dark:hover:bg-white/[0.12] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {selectedProject.image && (
-              <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-slate-900 border border-white/10">
+              <div className="aspect-[16/10] rounded-2xl overflow-hidden bg-slate-900 border border-slate-200 dark:border-white/10">
                 <img
                   src={selectedProject.image}
                   alt={selectedProject.title}
@@ -1454,15 +1727,15 @@ export default function App() {
               </div>
             )}
 
-            <p className="text-xs sm:text-base text-slate-300 leading-relaxed">
+            <p className="text-xs sm:text-base text-slate-600 dark:text-slate-300 leading-relaxed">
               {selectedProject.details}
             </p>
 
-            <div className="flex flex-wrap gap-2 pt-3 border-t border-white/10">
+            <div className="flex flex-wrap gap-2 pt-3 border-t border-slate-200 dark:border-white/10">
               {selectedProject.tech.map((t) => (
                 <span
                   key={t}
-                  className="px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/10 text-xs font-medium text-slate-200"
+                  className="px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-xs font-medium text-slate-700 dark:text-slate-200"
                 >
                   {t}
                 </span>
@@ -1475,7 +1748,7 @@ export default function App() {
                   href={selectedProject.url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-sky-400 hover:bg-sky-300 text-slate-950 text-xs sm:text-sm font-semibold transition-all"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-sky-500 hover:bg-sky-400 dark:bg-sky-400 dark:hover:bg-sky-300 text-white dark:text-slate-950 text-xs sm:text-sm font-semibold transition-all"
                 >
                   <ExternalLink className="w-4 h-4" />
                   <span>Buka {selectedProject.displayUrl}</span>
@@ -1490,24 +1763,24 @@ export default function App() {
       {activePreviewDoc && (
         <div
           onClick={() => setPreviewDocKey(null)}
-          className="animate-modal-backdrop fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-5"
+          className="animate-modal-backdrop fixed inset-0 z-50 bg-slate-900/70 dark:bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-5"
         >
           <div
             onClick={(e) => e.stopPropagation()}
             onContextMenu={(e) => e.preventDefault()}
-            className="animate-modal-panel w-full max-w-4xl h-[88vh] rounded-t-3xl sm:rounded-3xl bg-[#0D111A] border border-white/15 flex flex-col overflow-hidden shadow-2xl select-none"
+            className="animate-modal-panel w-full max-w-4xl h-[88vh] rounded-t-3xl sm:rounded-3xl bg-white dark:bg-[#0D111A] border border-slate-200 dark:border-white/15 flex flex-col overflow-hidden shadow-2xl select-none"
           >
             {/* Modal Top Toolbar */}
-            <div className="px-4 sm:px-6 py-3.5 border-b border-white/10 flex items-center justify-between gap-3 bg-[#0B0F19]">
+            <div className="px-4 sm:px-6 py-3.5 border-b border-slate-200 dark:border-white/10 flex items-center justify-between gap-3 bg-slate-50 dark:bg-[#0B0F19]">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="w-9 h-9 rounded-xl bg-sky-400/10 border border-sky-400/25 flex items-center justify-center text-sky-400 shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
                   <FileText className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-display text-xs sm:text-base font-bold text-white truncate">
+                  <h3 className="font-display text-xs sm:text-base font-bold text-slate-900 dark:text-white truncate">
                     {activePreviewDoc.title}
                   </h3>
-                  <p className="text-[10px] sm:text-xs text-slate-400 truncate">
+                  <p className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">
                     {activePreviewDoc.subtitle}
                   </p>
                 </div>
@@ -1517,17 +1790,17 @@ export default function App() {
                 <button
                   onClick={() => setZoomLevel((z) => Math.max(1, +(z - 0.25).toFixed(2)))}
                   aria-label="Perkecil"
-                  className="p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-colors"
+                  className="p-2 rounded-full bg-slate-200/70 hover:bg-slate-200 dark:bg-white/[0.05] dark:hover:bg-white/[0.12] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
                   <ZoomOut className="w-4 h-4" />
                 </button>
-                <span className="text-[11px] font-mono text-slate-300 px-1 hidden sm:inline">
+                <span className="text-[11px] font-mono text-slate-700 dark:text-slate-300 px-1 hidden sm:inline">
                   {Math.round(zoomLevel * 100)}%
                 </span>
                 <button
                   onClick={() => setZoomLevel((z) => Math.min(1.75, +(z + 0.25).toFixed(2)))}
                   aria-label="Perbesar"
-                  className="p-2 rounded-full bg-white/[0.05] hover:bg-white/[0.12] text-slate-300 hover:text-white transition-colors"
+                  className="p-2 rounded-full bg-slate-200/70 hover:bg-slate-200 dark:bg-white/[0.05] dark:hover:bg-white/[0.12] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors"
                 >
                   <ZoomIn className="w-4 h-4" />
                 </button>
@@ -1537,7 +1810,7 @@ export default function App() {
                     href={activePreviewDoc.verifyUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-400/15 hover:bg-sky-400/25 border border-sky-400/30 text-xs font-medium text-sky-300 ml-1"
+                    className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-sky-500/10 hover:bg-sky-500/20 dark:bg-sky-400/15 dark:hover:bg-sky-400/25 border border-sky-500/30 dark:border-sky-400/30 text-xs font-medium text-sky-700 dark:text-sky-300 ml-1"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     <span>{activePreviewDoc.verifyLabel}</span>
@@ -1547,7 +1820,7 @@ export default function App() {
                 <button
                   onClick={() => setPreviewDocKey(null)}
                   aria-label="Tutup"
-                  className="p-2 rounded-full bg-white/[0.08] hover:bg-white/[0.15] text-slate-200 hover:text-white transition-colors ml-1"
+                  className="p-2 rounded-full bg-slate-200/80 hover:bg-slate-300 dark:bg-white/[0.08] dark:hover:bg-white/[0.15] text-slate-700 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white transition-colors ml-1"
                 >
                   <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
@@ -1555,7 +1828,7 @@ export default function App() {
             </div>
 
             {/* Read-Only High-DPI Document Pages */}
-            <div className="flex-1 overflow-auto bg-[#07090E] p-3 sm:p-6">
+            <div className="flex-1 overflow-auto bg-slate-100 dark:bg-[#07090E] p-3 sm:p-6">
               <div
                 className="mx-auto space-y-4 transition-all duration-150 origin-top"
                 style={{ maxWidth: `${Math.round(780 * zoomLevel)}px` }}
@@ -1563,7 +1836,7 @@ export default function App() {
                 {activePreviewDoc.pages.map((src, idx) => (
                   <div
                     key={src}
-                    className="rounded-xl overflow-hidden border border-white/10 shadow-xl bg-white"
+                    className="rounded-xl overflow-hidden border border-slate-200 dark:border-white/10 shadow-xl bg-white"
                   >
                     <img
                       src={src}
@@ -1580,9 +1853,9 @@ export default function App() {
       )}
 
       {/* Clean Independent Footer */}
-      <footer className="relative z-10 border-t border-white/[0.06] py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
-          <span>© {new Date().getFullYear()} Bayu Saputra Portfolio</span>
+      <footer className="relative z-10 border-t border-slate-200/80 dark:border-white/[0.06] py-8">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
+          <span>© {new Date().getFullYear()} Bayu Saputra</span>
 
           <div className="flex items-center gap-3">
             {SOCIAL_LINKS.map(({ name, url, Icon }) => (
@@ -1592,7 +1865,7 @@ export default function App() {
                 target="_blank"
                 rel="noreferrer"
                 aria-label={name}
-                className="text-slate-400 hover:text-slate-100 transition-colors"
+                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
               >
                 <Icon className="w-4 h-4" />
               </a>

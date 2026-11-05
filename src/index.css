@@ -3,13 +3,14 @@
 @tailwind utilities;
 
 @layer base {
-  :root {
+  html {
+    color-scheme: light;
+  }
+  html.dark {
     color-scheme: dark;
   }
 
   body {
-    background-color: #05070B;
-    color: #F8FAFC;
     font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
@@ -19,13 +20,23 @@
     width: 6px;
   }
   ::-webkit-scrollbar-track {
+    background: #F1F5F9;
+  }
+  html.dark ::-webkit-scrollbar-track {
     background: #05070B;
   }
   ::-webkit-scrollbar-thumb {
+    background: #94A3B8;
+    border-radius: 9999px;
+  }
+  html.dark ::-webkit-scrollbar-thumb {
     background: #1E293B;
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
+    background: #0284C7;
+  }
+  html.dark ::-webkit-scrollbar-thumb:hover {
     background: #38BDF8;
   }
 }
@@ -33,81 +44,6 @@
 .marquee-mask {
   mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
   -webkit-mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
-}
-
-/* Pure GPU-Composited Zipper & Split Vault Door Intro (0ms JS Main-Thread Work) */
-@keyframes zipperPullGlide {
-  0% {
-    transform: translate3d(-50%, 4vh, 0) translateY(-50%);
-  }
-  100% {
-    transform: translate3d(-50%, 115vh, 0) translateY(-50%);
-  }
-}
-
-@keyframes seamUnzip {
-  0% { transform: scaleY(0); }
-  100% { transform: scaleY(1); }
-}
-
-@keyframes teethUnzip {
-  0% { transform: scaleY(1); }
-  100% { transform: scaleY(0); }
-}
-
-@keyframes barFill {
-  0% { transform: scaleX(0); }
-  100% { transform: scaleX(1); }
-}
-
-@keyframes vaultSlideLeft {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(-108%, 0, 0); }
-}
-
-@keyframes vaultSlideRight {
-  0% { transform: translate3d(0, 0, 0); }
-  100% { transform: translate3d(108%, 0, 0); }
-}
-
-.vault-zipper-pull {
-  animation: zipperPullGlide 0.48s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-  will-change: transform;
-}
-
-.vault-seam {
-  transform: scaleY(0);
-  animation: seamUnzip 0.36s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-  will-change: transform;
-}
-
-.vault-teeth {
-  animation: teethUnzip 0.36s cubic-bezier(0.65, 0, 0.35, 1) forwards;
-  will-change: transform;
-}
-
-.vault-progress-bar {
-  transform: scaleX(0);
-  animation: barFill 0.34s ease-out forwards;
-  will-change: transform;
-}
-
-.vault-door-left {
-  animation: vaultSlideLeft 0.44s cubic-bezier(0.22, 1, 0.36, 1) 0.28s forwards;
-  will-change: transform;
-}
-
-.vault-door-right {
-  animation: vaultSlideRight 0.44s cubic-bezier(0.22, 1, 0.36, 1) 0.28s forwards;
-  will-change: transform;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .vault-door-left,
-  .vault-door-right,
-  .vault-zipper-pull {
-    display: none;
-  }
 }
 
 @keyframes roleSlideIn {
@@ -150,21 +86,44 @@
   animation: modalPanelIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-.reveal-section {
+/* Directional GPU-Composited Scroll Entrance Animations */
+.sr-base {
   opacity: 0;
-  transform: translate3d(0, 20px, 0);
-  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-property: opacity, transform;
+  transition-duration: 0.72s;
+  transition-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
 }
 
-.reveal-section.is-visible {
+.sr-up {
+  transform: translate3d(0, 42px, 0);
+}
+
+.sr-left {
+  transform: translate3d(-44px, 0, 0);
+}
+
+.sr-right {
+  transform: translate3d(44px, 0, 0);
+}
+
+.sr-scale {
+  transform: translate3d(0, 30px, 0) scale(0.96);
+}
+
+.sr-base.sr-visible {
   opacity: 1;
-  transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0) scale(1);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal-section {
-    opacity: 1;
-    transform: none;
-    transition: none;
+  .sr-base,
+  .sr-up,
+  .sr-left,
+  .sr-right,
+  .sr-scale {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
 }

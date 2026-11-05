@@ -129,14 +129,14 @@ export function createFrontCardTexture(maxAnisotropy = 8) {
   fctx.fillStyle = '#94A3B8';
   fctx.font = '500 21px "Inter", system-ui, sans-serif';
   fctx.fillText('Pendidikan', 84, 1198);
-  fctx.fillText('Sertifikasi', 466, 1198);
-  fctx.fillText('Domisili', 744, 1198);
+  fctx.fillText('Sertifikasi', 456, 1198);
+  fctx.fillText('Beasiswa', 730, 1198);
 
   fctx.fillStyle = '#F8FAFC';
   fctx.font = '700 25px "Inter", system-ui, sans-serif';
   fctx.fillText('D4 TI — PCR (3.70)', 84, 1240);
-  fctx.fillText('BNSP & MTCNA', 466, 1240);
-  fctx.fillText('Pekanbaru', 744, 1240);
+  fctx.fillText('BNSP & MTCNA', 456, 1240);
+  fctx.fillText('Penuh 2022–2026', 730, 1240);
 
   // Crisp Vector Barcode + Smart Chip
   fctx.fillStyle = 'rgba(248, 250, 252, 0.78)';
@@ -203,7 +203,7 @@ export function createBackCardTexture(maxAnisotropy = 8) {
 
   const rows = [
     ['Pendidikan', 'D4 Teknik Informatika — PCR (IPK 3.70 / 4.00)'],
-    ['Pencapaian', 'Awardee Beasiswa Pemkab Rokan Hilir × PCR (2022)'],
+    ['Pencapaian', 'Beasiswa Penuh Pemkab Rohil × PCR (2022–2026)'],
     ['Magang', 'Web Developer Intern — Balai Bahasa Prov. Riau'],
     ['Sertifikasi', 'BNSP Programmer (Lulus) & MTCNA (2024–2027)'],
     ['Pelatihan', 'Dicoding: Dasar AI & Prompt Engineering Dev'],
