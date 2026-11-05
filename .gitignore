@@ -1,4 +1,4 @@
-# Logs
+# Catatan log
 logs
 *.log
 npm-debug.log*
@@ -6,20 +6,17 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Dependencies & Build Output
+# Dependensi & hasil build
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor & OS files
+# Konfigurasi editor, sistem operasi & Vercel
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
 Thumbs.db
-.env
-.env.*
-
 .vercel
 .env*
