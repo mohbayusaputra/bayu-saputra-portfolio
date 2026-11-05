@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
+// Konfigurasi bundler Vite dan pemisahan paket vendor agar pemuatan awal tetap ringan
 export default defineConfig({
   plugins: [react()],
   build: {
@@ -8,6 +9,7 @@ export default defineConfig({
     minify: 'esbuild',
     sourcemap: false,
     cssCodeSplit: true,
+    chunkSizeWarningLimit: 600,
     rollupOptions: {
       output: {
         manualChunks(id) {
