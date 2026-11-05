@@ -1,7 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="16" fill="#0B0F19"/>
-  <rect x="2" y="2" width="60" height="60" rx="14" stroke="#38BDF8" stroke-opacity="0.45" stroke-width="3"/>
-  <path d="M24 22L14 32L24 42" stroke="#38BDF8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M40 22L50 32L40 42" stroke="#818CF8" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M35 18L29 46" stroke="#F8FAFC" stroke-width="4" stroke-linecap="round"/>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="64" y2="64" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0F172A"/>
+      <stop offset="100%" stop-color="#050811"/>
+    </linearGradient>
+    <linearGradient id="strokeGrad" x1="4" y1="4" x2="60" y2="60" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <linearGradient id="sGrad" x1="33" y1="17" x2="51" y2="47" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#38BDF8"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#bg)"/>
+  <rect x="2" y="2" width="60" height="60" rx="14" stroke="url(#strokeGrad)" stroke-opacity="0.7" stroke-width="2.5"/>
+  <!-- Geometric 'B' -->
+  <path d="M14 18H25.5C29.4 18 32 20.3 32 23.8C32 26.4 30.5 28.3 28.2 29.1C31.1 29.9 33 32.1 33 35.3C33 39.4 30 42 25.6 42H14V18ZM20 22.8V27.4H24.6C26.3 27.4 27.3 26.5 27.3 25.1C27.3 23.7 26.3 22.8 24.6 22.8H20ZM20 32V37.2H25.1C27 37.2 28.1 36.2 28.1 34.6C28.1 33 27 32 25.1 32H20Z" fill="#F8FAFC" transform="translate(0, 2)"/>
+  <!-- Geometric 'S' Accent -->
+  <path d="M49.5 24.2C47.7 22.8 45.3 22.1 42.9 22.1C40.4 22.1 38.9 23.1 38.9 24.6C38.9 26.2 40.5 26.8 43.7 27.6C48.2 28.7 51.2 30.6 51.2 35C51.2 39.7 47.4 42.5 42.1 42.5C38.6 42.5 35.6 41.4 33.6 39.5L36.7 35.5C38.3 36.9 40.3 37.7 42.3 37.7C44.7 37.7 46.1 36.7 46.1 35.2C46.1 33.7 44.7 33 41.4 32.1C37.1 31 34 29.3 34 24.9C34 20.4 37.7 17.5 42.8 17.5C46.1 17.5 49 18.4 51.2 20.1L49.5 24.2Z" fill="url(#sGrad)" transform="translate(0, 2)"/>
 </svg>

@@ -3,18 +3,34 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Bayu Saputra — Web Developer &amp; Software Engineer</title>
+    <title>Bayu Saputra — Portofolio</title>
     <meta
       name="description"
-      content="Portofolio Bayu Saputra — Lulusan D4 Teknik Informatika Politeknik Caltex Riau (IPK 3.70/4.00), Web Developer & Software Engineer."
+      content="Website Portofolio Bayu Saputra — Lulusan D4 Teknik Informatika Politeknik Caltex Riau (IPK 3.70/4.00), Web Developer & Software Engineer."
     />
-    <meta name="theme-color" content="#05070B" />
+    <meta name="theme-color" content="#05070B" id="meta-theme-color" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('bs-theme');
+          if (t === 'light') {
+            document.documentElement.classList.remove('dark');
+            var m = document.getElementById('meta-theme-color');
+            if (m) m.setAttribute('content', '#F8FAFC');
+          }
+        } catch (e) {}
+      })();
+    </script>
     <style>
-      html, body { background-color: #05070B; color: #F8FAFC; margin: 0; }
+      html { background-color: #F8FAFC; color: #0F172A; }
+      html.dark { background-color: #05070B; color: #F8FAFC; }
+      body { margin: 0; }
     </style>
   </head>
-  <body class="bg-[#05070B] text-zinc-100 antialiased selection:bg-zinc-200 selection:text-zinc-900 overflow-x-hidden">
+  <body class="bg-slate-50 dark:bg-[#05070B] text-slate-900 dark:text-zinc-100 antialiased selection:bg-sky-500/20 selection:text-sky-900 dark:selection:bg-zinc-200 dark:selection:text-zinc-900 overflow-x-hidden transition-colors duration-300">
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
