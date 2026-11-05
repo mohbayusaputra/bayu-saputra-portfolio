@@ -20,7 +20,7 @@ async function prerender() {
   const htmlPath = path.join(distDir, 'index.html');
   let html = await fs.readFile(htmlPath, 'utf8');
 
-  // Inline built Tailwind CSS directly into <head> to eliminate render-blocking CSS round-trip
+  // Tanamkan CSS hasil kompilasi langsung ke dalam <head> agar tampilan awal langsung ter-render
   const cssMatch = html.match(/<link rel="stylesheet"[^>]*href="\/assets\/(index-[^"]+\.css)"[^>]*>/);
   if (cssMatch) {
     const cssFile = path.join(distDir, 'assets', cssMatch[1]);
@@ -28,7 +28,7 @@ async function prerender() {
     html = html.replace(cssMatch[0], `<style>${cssContent}</style>`);
   }
 
-  // Defer React hydration entry script until immediately after First Paint so SSG HTML paints unblocked
+  // Jalankan skrip hidrasi React tepat setelah bingkai visual pertama (First Paint)
   const scriptMatch = html.match(/<script type="module"[^>]*src="(\/assets\/index-[^"]+\.js)"[^>]*><\/script>/);
   html = html.replace(/<link rel="modulepreload"[^>]*>/g, '');
   if (scriptMatch) {
@@ -38,14 +38,14 @@ async function prerender() {
     html = html.replace('</body>', `${postPaintHydrate}</body>`);
   }
 
-  // Inject pre-rendered SSG HTML into #root for instant FCP & LCP before JS downloads
+  // Masukkan hasil pra-render HTML ke dalam #root
   html = html.replace('<div id="root"></div>', `<div id="root">${appHtml}</div>`);
 
   await fs.writeFile(htmlPath, html, 'utf8');
   await fs.rm(ssrDir, { recursive: true, force: true });
 
   const stat = await fs.stat(htmlPath);
-  console.log(`✓ SSG Pre-rendered dist/index.html (${(stat.size / 1024).toFixed(1)} KB raw)`);
+  console.log(`✓ Pra-render halaman statis selesai: dist/index.html (${(stat.size / 1024).toFixed(1)} KB)`);
 }
 
 await prerender();
