@@ -2,17 +2,15 @@ import React from 'react';
 import { Code2 } from 'lucide-react';
 
 /**
- * 100% Pure CSS GPU-Composited Zipper & Split Smoked-Glass Vault Doors.
- * Zero main-thread JS timers or React state mutations, allowing instant FCP/LCP!
+ * 100% Pure CSS GPU-Composited Zipper & Split Vault Doors.
+ * Slides completely offscreen via translate3d without opacity-0 container suppression,
+ * preserving instant First Contentful Paint & Largest Contentful Paint.
  */
 export default function LoadingScreen() {
   return (
-    <div
-      aria-hidden="true"
-      className="vault-loader-root fixed inset-0 z-[100] pointer-events-none overflow-hidden select-none"
-    >
-      {/* LEFT SMOKED-GLASS VAULT DOOR */}
-      <div className="vault-door-left absolute inset-y-0 left-0 w-1/2 bg-[#060911]/82 border-r border-sky-400/35 shadow-[12px_0_45px_rgba(0,0,0,0.85)] overflow-hidden flex items-center justify-end pr-6 sm:pr-12">
+    <div className="pointer-events-none fixed inset-0 z-[100] overflow-hidden select-none">
+      {/* LEFT VAULT DOOR */}
+      <div className="vault-door-left absolute inset-y-0 left-0 w-[calc(50%-3px)] bg-[#060911]/90 border-r border-sky-400/40 shadow-[12px_0_45px_rgba(0,0,0,0.85)] overflow-hidden flex items-center justify-end pr-6 sm:pr-12">
         <div
           className="pointer-events-none absolute inset-0 opacity-25"
           style={{
@@ -59,8 +57,8 @@ export default function LoadingScreen() {
         </div>
       </div>
 
-      {/* RIGHT SMOKED-GLASS VAULT DOOR */}
-      <div className="vault-door-right absolute inset-y-0 right-0 w-1/2 bg-[#060911]/82 border-l border-indigo-400/35 shadow-[-12px_0_45px_rgba(0,0,0,0.85)] overflow-hidden flex items-center justify-start pl-6 sm:pl-12">
+      {/* RIGHT VAULT DOOR */}
+      <div className="vault-door-right absolute inset-y-0 right-0 w-[calc(50%-3px)] bg-[#060911]/90 border-l border-indigo-400/40 shadow-[-12px_0_45px_rgba(0,0,0,0.85)] overflow-hidden flex items-center justify-start pl-6 sm:pl-12">
         <div
           className="pointer-events-none absolute inset-0 opacity-25"
           style={{
@@ -93,18 +91,18 @@ export default function LoadingScreen() {
         {/* Right Door Status Badge + GPU Progress Track */}
         <div className="relative z-10 text-left w-32 sm:w-44">
           <span className="font-mono text-2xl sm:text-5xl font-bold text-sky-300 tracking-tight block">
-            READY
+            100%
           </span>
           <div className="mt-2.5 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
             <div className="vault-progress-bar h-full w-full origin-left bg-gradient-to-r from-sky-400 to-indigo-400 rounded-full" />
           </div>
           <p className="font-mono text-[10px] sm:text-xs text-slate-300 mt-2 tracking-wide uppercase">
-            Unlocking Door...
+            Opening Doors...
           </p>
         </div>
       </div>
 
-      {/* CENTER ZIPPER SLIDER / PULL HEAD (Pure CSS Compositor Keyframe) */}
+      {/* CENTER ZIPPER SLIDER / PULL HEAD (Slides cleanly past bottom of viewport) */}
       <div className="vault-zipper-pull pointer-events-none absolute left-1/2 top-0 z-20 flex flex-col items-center">
         <div className="w-7 h-9 rounded-xl bg-gradient-to-b from-slate-200 via-slate-400 to-slate-600 p-[1.5px] shadow-[0_0_24px_rgba(56,189,248,0.85)]">
           <div className="w-full h-full rounded-[10px] bg-[#0B0F19] flex items-center justify-center">
