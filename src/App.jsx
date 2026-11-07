@@ -42,6 +42,7 @@ import SpotlightCard from './components/SpotlightCard';
 import LoadingScreen from './components/LoadingScreen';
 import { TECH_STACK_ITEMS } from './components/TechIcons';
 import { SOCIAL_LINKS } from './components/SocialIcons';
+import VisitorStats from './components/VisitorStats';
 
 const LazyLanyardScene = lazy(() => import('./components/LanyardScene'));
 
@@ -1855,7 +1856,10 @@ export default function App() {
       {/* Clean Independent Footer */}
       <footer className="relative z-10 border-t border-slate-200/80 dark:border-white/[0.06] py-8">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-          <span>© {new Date().getFullYear()} Bayu Saputra</span>
+          <div className="flex flex-col sm:flex-row items-center gap-3">
+            <span>© {new Date().getFullYear()} Bayu Saputra</span>
+            <VisitorStats />
+          </div>
 
           <div className="flex items-center gap-3">
             {SOCIAL_LINKS.map(({ name, url, Icon }) => (
