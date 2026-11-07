@@ -1853,27 +1853,28 @@ export default function App() {
         </div>
       )}
 
-      {/* Clean Independent Footer */}
-      <footer className="relative z-10 border-t border-slate-200/80 dark:border-white/[0.06] py-8">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400">
-          <div className="flex flex-col sm:flex-row items-center gap-3">
-            <span>© {new Date().getFullYear()} Bayu Saputra</span>
-            <VisitorStats />
-          </div>
+      {/* Clean Independent Footer + Responsive Visitor Analytics Card */}
+      <footer className="relative z-10 border-t border-slate-200/80 dark:border-white/[0.06] py-8 sm:py-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-6">
+          <VisitorStats />
 
-          <div className="flex items-center gap-3">
-            {SOCIAL_LINKS.map(({ name, url, Icon }) => (
-              <a
-                key={name}
-                href={url}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={name}
-                className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
-              >
-                <Icon className="w-4 h-4" />
-              </a>
-            ))}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-200/70 dark:border-white/[0.05] text-xs text-slate-500 dark:text-slate-400">
+            <span>© {new Date().getFullYear()} Bayu Saputra</span>
+
+            <div className="flex items-center gap-3">
+              {SOCIAL_LINKS.map(({ name, url, Icon }) => (
+                <a
+                  key={name}
+                  href={url}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={name}
+                  className="text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
+                >
+                  <Icon className="w-4 h-4" />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       </footer>
