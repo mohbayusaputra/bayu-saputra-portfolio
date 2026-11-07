@@ -113,14 +113,9 @@ export default function VisitorStats() {
           <div className="w-10 h-10 rounded-xl bg-sky-500/10 border border-sky-500/25 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
             <BarChart3 className="w-5 h-5" />
           </div>
-          <div>
-            <h3 className="font-display text-sm sm:text-base font-bold text-slate-900 dark:text-white leading-tight">
-              Statistik Kunjungan
-            </h3>
-            <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Dihitung unik per browser · Zona waktu WIB
-            </p>
-          </div>
+          <h3 className="font-display text-sm sm:text-base font-bold text-slate-900 dark:text-white">
+            Statistik Pengunjung
+          </h3>
         </div>
 
         {/* Right 3 Responsive Metric Cards */}
