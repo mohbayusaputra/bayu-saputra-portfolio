@@ -241,7 +241,7 @@ export default function LanyardScene({
       portraitMesh.visible = false;
       cardVisual.add(portraitMesh);
 
-      loadCleanPortraitTexture('/bayu-card-portrait.webp?v=2', maxAniso, (tex) => {
+      loadCleanPortraitTexture('/bayu-card-portrait.webp?v=3', maxAniso, (tex) => {
         if (disposed) {
           tex.dispose();
           return;
