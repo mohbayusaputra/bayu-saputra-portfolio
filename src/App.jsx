@@ -325,8 +325,8 @@ function LanyardStaticPreview({ hidden }) {
         </div>
         <div className="aspect-square w-full rounded-xl overflow-hidden border border-sky-400/30 bg-[#181B24] mb-2.5">
           <img
-            src="/bayu-card-portrait-sm.webp"
-            srcSet="/bayu-card-portrait-sm.webp 288w, /bayu-card-portrait.webp 768w"
+            src="/bayu-card-portrait-sm.webp?v=2"
+            srcSet="/bayu-card-portrait-sm.webp?v=2 288w, /bayu-card-portrait.webp?v=2 768w"
             sizes="(max-width: 640px) 148px, (max-width: 1024px) 188px, 216px"
             alt=""
             width="240"
