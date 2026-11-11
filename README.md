@@ -15,6 +15,7 @@ Link website: **[bayusaputra-portofolio.vercel.app](https://bayusaputra-portofol
 - **Proyek Akhir & Tugas Kuliah**: Dokumentasi sistem penerimaan santri baru pada Proyek Akhir serta beberapa proyek mata kuliah (web, aplikasi Android, dan dasar kecerdasan buatan).
 - **Pengalaman, Pencapaian & Kredensial**: Riwayat magang, beasiswa pendidikan (2022–2026), pendidikan formal, organisasi, serta pratinjau dokumen CV dan sertifikat.
 - **Tema Gelap & Terang**: Mendukung pergantian tampilan mode gelap (*dark*) dan mode terang (*light*) di perangkat desktop maupun ponsel.
+- **Statistik Pengunjung**: Panel penghitung jumlah pengunjung harian, bulanan, dan total di bagian *footer* halaman.
 
 ## Teknologi yang Digunakan
 
@@ -22,6 +23,7 @@ Link website: **[bayusaputra-portofolio.vercel.app](https://bayusaputra-portofol
 - Tailwind CSS
 - Three.js
 - Lucide Icons
+- Upstash Redis & Vercel Serverless Functions
 
 ## Cara Menjalankan di Komputer Lokal
 
